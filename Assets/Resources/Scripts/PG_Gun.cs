@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Gun : MonoBehaviour {
+public class PG_Gun : MonoBehaviour {
 	
 	public GameObject shot;
 	public float speed = 20f;

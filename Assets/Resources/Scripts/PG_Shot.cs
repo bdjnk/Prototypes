@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Shot : MonoBehaviour {
+public class PG_Shot : MonoBehaviour {
 	
 	public float persist = 6f;
 

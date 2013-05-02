@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Fly : MonoBehaviour {
+public class PG_Fly : MonoBehaviour {
 	
 	private bool flight = false;
 	
