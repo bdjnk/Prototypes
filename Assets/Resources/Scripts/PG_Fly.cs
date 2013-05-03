@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PG_Fly : MonoBehaviour {
 	
-	private bool flight = false;
+	//private bool flight = false;
 	
 	public CharacterMotor motor;
 
