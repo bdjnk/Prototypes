@@ -8,17 +8,33 @@ public class PG_Gun : MonoBehaviour {
 	public float rate = 0.5f;
 	private float delay = 0;
 	
+	public Texture2D crosshairImage;
+	
+	void OnGUI()
+	{
+		float xMin = (Screen.width / 2) - (crosshairImage.width / 2);
+		float yMin = (Screen.height / 2) - (crosshairImage.height / 2);
+		GUI.DrawTexture(new Rect(xMin, yMin, crosshairImage.width, crosshairImage.height), crosshairImage);
+	}
+	
 	// Use this for initialization
-	void Start () { }
+	void Start () {
+		Screen.showCursor = false;
+	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetButton("Fire1") && Time.time > delay) {
+		if (Input.GetButton("Fire1") && Time.time > delay)
+		{
+			Screen.showCursor = false;
 			delay = Time.time + rate;
 			Vector3 pos = transform.position + transform.forward * transform.localScale.z * 1f;
 			GameObject clone = Instantiate(shot, pos, transform.rotation) as GameObject;
 			clone.rigidbody.velocity = transform.TransformDirection(new Vector3(0, 0, speed));
-			//Physics.IgnoreCollision(clone.collider, transform.root.collider);
+		}
+		if (Input.GetKeyUp(KeyCode.Escape))
+		{
+			Screen.showCursor = true;
 		}
 	}
 }
