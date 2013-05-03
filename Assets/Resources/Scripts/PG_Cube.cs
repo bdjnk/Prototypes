@@ -11,6 +11,11 @@ public class PG_Cube : MonoBehaviour
 	public Material red;
 	public Material blue;
 	
+	public int resistence = 3;
+	public int maxColor = 4;
+	private float amountBlue;
+	private float amountRed;
+	
 	private PG_Building building;
 	
 	void Start()
@@ -18,19 +23,45 @@ public class PG_Cube : MonoBehaviour
 		building = transform.parent.GetComponent<PG_Building>();
 	}
 	
-	public void Struck(Material color)
+	public void Struck(PG_Shot shot)
 	{
-		if (color == blue)
+		foreach (Transform child in transform.parent)
 		{
-			//TODO tell building script for analysis and response
-			renderer.material = blue;
-			building.Struck(transform.position);
+			float distance = Vector3.Distance(transform.position, child.position);
+			if (distance < 2.9f) // only consider adjacent cubes
+			{
+				PG_Cube cubeScript = child.GetComponent<PG_Cube>();
+				if (cubeScript != null) // this is a cube
+				{
+					cubeScript.Effects(shot, distance);
+				}
+			}
 		}
-		else if (color == red)
+	}
+	
+	public void Effects(PG_Shot shot, float distance)
+	{
+		float effect = shot.power - distance;
+		
+		if (shot.renderer.sharedMaterial == blue)
 		{
-			//TODO tell building script for analysis and response
-			renderer.material = red;
-			building.Struck(transform.position);
+			amountRed = Mathf.Max(0, amountRed - effect);
+			amountBlue = Mathf.Min(maxColor, amountBlue + effect);
+			
+			if (amountBlue > resistence)
+			{
+				renderer.material = blue;
+			}
+		}
+		else if (shot.renderer.sharedMaterial == red)
+		{
+			amountBlue = Mathf.Max(0, amountBlue - effect);
+			amountRed = Mathf.Min(maxColor, amountRed + effect);
+			
+			if (amountRed > resistence)
+			{
+				renderer.material = red;
+			}
 		}
 	}
 }
