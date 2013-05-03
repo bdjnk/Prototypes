@@ -7,18 +7,18 @@ public class PG_Map : MonoBehaviour
 	public bool floor;
 	public float spacing;
 	
-    public int[] citySize = {6, 1, 6};
+    public int[] citySize = {6, 1, 6}; // {width, height, depth}
 	
     public int[] minBuildingSize = {1, 1, 1};
     public int[] maxBuildingSize = {3, 3, 3};
 	
 	public GameObject cube;
 	
-	// Use this for initialization
+	// Builds a Map
 	void Start()
 	{
 		Vector3 offset = Vector3.zero;
-		Vector3 temp = Vector3.zero;
+		Vector3 temp = Vector3.zero; //TODO give a meaningful name
 		
 		int width = citySize[0];
 		int height = citySize[1];
@@ -40,6 +40,7 @@ public class PG_Map : MonoBehaviour
 	Vector3 MakeBuilding(Vector3 offset)
 	{
 		GameObject building = new GameObject("Building");
+		building.AddComponent("PG_Building"); // add the building script
 		
 		Vector3 center = Vector3.zero;
 		
@@ -63,12 +64,11 @@ public class PG_Map : MonoBehaviour
 			}
 		}
 		building.transform.position += offset;
-		building.AddComponent("PG_Building");
 		
 		int count = width * height * depth;
 		center /= count;
 		
-		GameObject light = new GameObject("Light");// as GameObject;
+		GameObject light = new GameObject("Light");
 		light.AddComponent(typeof(Light));
 		light.transform.parent = building.transform;
 		light.transform.localPosition = center;

@@ -7,11 +7,6 @@ using System.Collections;
  */
 public class PG_Building : MonoBehaviour
 {
-	void Start()
-	{
-		
-	}
-	
 	void Update()
 	{
 		

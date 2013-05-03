@@ -7,15 +7,15 @@ using System.Collections;
  */
 public class PG_Cube : MonoBehaviour
 {
-	private Color color = Color.gray;
+	public Material gray;
+	public Material red;
+	public Material blue;
 	
-	void Start()
+	public void Struck(Material color)
 	{
-		
-	}
-	
-	void OnTriggerEnter(Collider other)
-	{
-		
+		if (color == red)
+		{
+			renderer.material = red;
+		}
 	}
 }
