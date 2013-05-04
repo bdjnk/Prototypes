@@ -8,6 +8,7 @@ public class ServerSetupScript : MonoBehaviour {
 	public GameObject playerPrefab = null;  
 	private GameObject mainPlayer = null;  
 	public float mSpeed = 5.0f;
+	public int playerNumber = 0;
 	
 	private float buttonX = Screen.width*0.05f;
 	private float buttonY = Screen.width*0.05f;
@@ -47,6 +48,14 @@ public class ServerSetupScript : MonoBehaviour {
 			
 		}
 		*/
+		/*
+		if (networkView.name!=playerName){
+			GameObject gObj = GameObject.Find(playerName);
+			gObj.GetComponent<PlayerScript>().enabled = false;
+		
+		}
+		*/
+		
 		if(refreshing){
 			if(MasterServer.PollHostList().Length > 0){
 				refreshing = false;
@@ -81,6 +90,10 @@ public class ServerSetupScript : MonoBehaviour {
 				{
 					if(GUI.Button(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*i),buttonW*3f,buttonH*0.5f),hostData[i].gameName)){
 						Network.Connect(hostData[i]);
+						//this wont really work to track largest value of # of players
+						//(could get duplicates)
+						playerNumber = hostData[i].connectedPlayers + 1;
+						
 					}
 				}
 			}	
@@ -119,7 +132,16 @@ public class ServerSetupScript : MonoBehaviour {
 	}
 	
 	void SpawnPlayer(){
+		//playerNumber++;
+		//TODO: make a unique name - check if it already exists before saving it
 		mainPlayer = (GameObject) Network.Instantiate(playerPrefab, new Vector3(spawnX,spawnY,spawnZ),Quaternion.identity, 0);    
+		mainPlayer.name += playerNumber;
+		mainPlayer.GetComponentInChildren<Camera>().enabled = true;
+		mainPlayer.GetComponent<FPSInputController>().enabled = true;
+		mainPlayer.GetComponent<CharacterMotor>().enabled = true;
+		mainPlayer.GetComponent<MouseLook>().enabled = true;
+		mainPlayer.GetComponentInChildren<Camera>().GetComponent<MouseLook>().enabled = true;
+		mainPlayer.GetComponentInChildren<Camera>().GetComponent<PG_Gun>().enabled = true;
 		//mainPlayer.transform.localScale = new Vector3 (10f,10f,10f);
 	}
 	

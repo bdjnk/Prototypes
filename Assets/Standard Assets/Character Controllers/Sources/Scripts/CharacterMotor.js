@@ -309,6 +309,7 @@ private function UpdateFunction () {
 }
 
 function FixedUpdate () {
+	
 	if (movingPlatform.enabled) {
 		if (movingPlatform.activePlatform != null) {
 			if (!movingPlatform.newPlatform) {
@@ -326,16 +327,18 @@ function FixedUpdate () {
 			movingPlatform.platformVelocity = Vector3.zero;	
 		}
 	}
+
 	
 	if (useFixedUpdate)
 		UpdateFunction();
 }
 
 function Update () {
-	//if (networkView.isMine){
+	//Debug.Log("view name: " + networkView.name);
+
 		if (!useFixedUpdate)
 			UpdateFunction();
-	//}
+	
 }
 
 private function ApplyInputVelocityChange (velocity : Vector3) {	
