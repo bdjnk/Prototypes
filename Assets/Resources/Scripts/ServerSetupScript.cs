@@ -5,6 +5,7 @@ using System.Collections;
 public class ServerSetupScript : MonoBehaviour {
 	
 	//for testing of object movement
+	private GameObject mainGame = null;
 	public GameObject playerPrefab = null;  
 	private GameObject mainPlayer = null;  
 	public float mSpeed = 5.0f;
@@ -19,17 +20,22 @@ public class ServerSetupScript : MonoBehaviour {
 	public float spawnY = 3f;
 	public float spawnZ = -20f;
 
-	
+	private bool GUIgettingPlayerData = false;
+	private bool GUIgettingPlayerName = false;
 	private bool refreshing = false;
 	private HostData[] hostData = null;
 	
 	private string gameName = "123Paint the Town123";//could make this public if we want
 	public string defaultGameInstanceName = "Paint The Town - Ben";
 	
+	private string myTeamInputColor = "red";
+	private string myInputName = "Your Name";
+	
 	// Use this for initialization
 	void Start () {
 		//StartServer();
 		//TestCube ();
+		mainGame = GameObject.Find ("GameManager");
 		
 	}
 	
@@ -96,8 +102,52 @@ public class ServerSetupScript : MonoBehaviour {
 						
 					}
 				}
-			}	
+			}
 		}
+		if(GUIgettingPlayerData){
+			int redTeamTotalPlayers = mainGame.GetComponent<GameManagerScript>().getRedTeamCount();
+			int blueTeamTotalPlayers = mainGame.GetComponent<GameManagerScript>().getBlueTeamCount();
+			//Debug.Log ("red:" + redTeamTotalPlayers);
+			//Debug.Log ("blue:" + blueTeamTotalPlayers);
+			
+			
+			if(GUI.Button(new Rect(buttonX,buttonY,buttonW,buttonH),"Red Team (" + redTeamTotalPlayers + ")")){
+				Debug.Log ("Red Team Selected");
+				myTeamInputColor = "red";
+				GUIgettingPlayerData = false;
+				GUIgettingPlayerName = true;
+			}
+			
+			if(GUI.Button(new Rect(buttonX,buttonY + 1.2f * buttonW,buttonW,buttonH),"Blue Team (" + blueTeamTotalPlayers + ")")){
+				Debug.Log ("Blue Team Selected");
+				myTeamInputColor = "blue";
+				GUIgettingPlayerData = false;
+				GUIgettingPlayerName = true;	
+			}
+			
+			
+		}
+		if (GUIgettingPlayerName){
+			
+	        myInputName = GUI.TextField(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f), myInputName, 15);
+			if(GUI.Button(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*2),buttonW*3f,buttonH*0.5f),"Submit")){
+				SpawnPlayer();
+				GUIgettingPlayerName = false;
+			}
+			//SpawnPlayer();
+			/*
+			foreach (char c in Input.inputString) { 
+				if (c == "\b"[0])     
+					if (guiText.text.Length != 0)  
+						guiText.text = guiText.text.Substring(0, guiText.text.Length - 1);  
+					else
+						if (c == "\n"[0] || c == "\r"[0]) 
+							print("User entered his name: " + guiText.text);  
+						else guiText.text += c;    
+			}*/
+		}
+		
+		
 	}
 
 	void StartServer(){
@@ -123,28 +173,65 @@ public class ServerSetupScript : MonoBehaviour {
 	
 	void OnServerInitialized(){
 		Debug.Log ("Server initialized");
-		SpawnPlayer();
+		GUIgettingPlayerData = true;
+		//SpawnPlayer();
 	}
 	
 	void OnConnectedToServer(){
 		Debug.Log ("Connected to Server");
-		SpawnPlayer();
+		GUIgettingPlayerData = true;
+		//SpawnPlayer();
 	}
 	
+
 	void SpawnPlayer(){
 		//playerNumber++;
 		//TODO: make a unique name - check if it already exists before saving it
-		mainPlayer = (GameObject) Network.Instantiate(playerPrefab, new Vector3(spawnX,spawnY,spawnZ),Quaternion.identity, 0);    
-		mainPlayer.name += playerNumber;
+		mainPlayer = (GameObject) Network.Instantiate(playerPrefab, new Vector3(spawnX,spawnY,spawnZ),Quaternion.identity, 0);
+		
 		mainPlayer.GetComponentInChildren<Camera>().enabled = true;
 		mainPlayer.GetComponent<FPSInputController>().enabled = true;
 		mainPlayer.GetComponent<CharacterMotor>().enabled = true;
 		mainPlayer.GetComponent<MouseLook>().enabled = true;
 		mainPlayer.GetComponentInChildren<Camera>().GetComponent<MouseLook>().enabled = true;
 		mainPlayer.GetComponentInChildren<Camera>().GetComponent<PG_Gun>().enabled = true;
-		//mainPlayer.transform.localScale = new Vector3 (10f,10f,10f);
+		
+		mainGame.networkView.RPC ("updateTeamData",RPCMode.AllBuffered,myTeamInputColor,myInputName);
+		mainPlayer.networkView.RPC ("setNewPlayerData",RPCMode.AllBuffered,myTeamInputColor,myInputName);
+		//if(playerNumber==0)//first player into game
+		//	playerNumber++;
+		
+		//SetPlayerData ();
+		
+		//networkView.RPC ("SetPlayerData",RPCMode.AllBuffered);
+		/*
+		if(Network.isClient){
+			mainPlayer.networkView.RPC ("SetMyName",RPCMode.AllBuffered,"Client");
+		} else {
+			mainPlayer.networkView.RPC ("SetMyName",RPCMode.AllBuffered,"Server");
+		}*/
+			
 	}
 	
+	/*
+	[RPC]
+	void SetPlayerData(){		
+		
+		//default color is red
+		GameObject playerShotColor = Resources.Load("Prefabs/RedShot") as GameObject;
+		Material playerMaterialColor = Resources.Load ("Materials/Red") as Material;
+		mainPlayer.name = "Red Team Player " + playerNumber;
+		//set blue or red (even or odd playerNumber)
+		if(playerNumber%2==0){//even will be blue (default is red)	
+			playerShotColor = Resources.Load("Prefabs/BlueShot") as GameObject;
+			playerMaterialColor = Resources.Load ("Materials/Blue") as Material;
+			mainPlayer.name = "Blue Team Player " + playerNumber;
+		} 
+		mainPlayer.GetComponentInChildren<Camera>().GetComponent<PG_Gun>().shot = playerShotColor;
+		mainPlayer.GetComponentInChildren<MeshRenderer>().renderer.material = playerMaterialColor;
+	}
+	
+	*/
 	void OnMasterServerEvent(MasterServerEvent mse){
 		if(mse == MasterServerEvent.RegistrationSucceeded){
 			Debug.Log ("Registered Server");
