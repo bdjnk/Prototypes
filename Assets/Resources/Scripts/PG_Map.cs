@@ -12,7 +12,8 @@ public class PG_Map : MonoBehaviour
     public int[] minBuildingSize = {1, 1, 1};
     public int[] maxBuildingSize = {3, 3, 3};
 	
-	public GameObject cube;
+	public GameObject cubePrefab;
+	public GameObject groundPrefab;
 	
 	// Builds a Map
 	void Start()
@@ -35,6 +36,12 @@ public class PG_Map : MonoBehaviour
 				}
 			}
 		}
+		if (floor)
+		{
+			GameObject ground = Instantiate(groundPrefab) as GameObject;
+			ground.transform.position = new Vector3(0, -0.5f, 0);
+			
+		}
 	}
 	
 	Vector3 MakeBuilding(Vector3 offset)
@@ -54,12 +61,12 @@ public class PG_Map : MonoBehaviour
 			{
 				for (int d = 0; d < depth; d++)
 				{
-					GameObject c = Instantiate(cube) as GameObject;
-			    	c.transform.parent = building.transform;
-					c.transform.localPosition = new Vector3(1.5f * w, 1.5f * h, 1.5f * d);
-					c.AddComponent("PG_Cube");
+					GameObject cube = Instantiate(cubePrefab) as GameObject;
+			    	cube.transform.parent = building.transform;
+					cube.transform.localPosition = new Vector3(1.5f * w, 1.5f * h, 1.5f * d);
+					cube.AddComponent("PG_Cube");
 					
-					center += c.transform.position;
+					center += cube.transform.position;
 				}
 			}
 		}
