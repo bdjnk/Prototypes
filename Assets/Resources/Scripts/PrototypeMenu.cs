@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class TitleMenu : MonoBehaviour {
+public class PrototypeMenu : MonoBehaviour {
 
 void OnGUI()
 	{
