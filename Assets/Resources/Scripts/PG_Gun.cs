@@ -17,12 +17,10 @@ public class PG_Gun : MonoBehaviour {
 		GUI.DrawTexture(new Rect(xMin, yMin, crosshairImage.width, crosshairImage.height), crosshairImage);
 	}
 	
-	// Use this for initialization
 	void Start () {
 		Screen.showCursor = false;
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		
 		if (Input.GetButton("Fire1") && Time.time > delay)

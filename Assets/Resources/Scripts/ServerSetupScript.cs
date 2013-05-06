@@ -17,7 +17,7 @@ public class ServerSetupScript : MonoBehaviour {
 	private float buttonH = Screen.width*0.1f;
 	
 	public float spawnX = 8f;
-	public float spawnY = 3f;
+	public float spawnY = 1f;
 	public float spawnZ = -20f;
 
 	private bool GUIgettingPlayerData = false;
