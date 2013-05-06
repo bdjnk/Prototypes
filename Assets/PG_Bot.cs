@@ -21,13 +21,13 @@ public class PG_Bot : MonoBehaviour
 	
 	void Update ()
 	{
+		transform.forward = enemy.position - transform.position;
 		if (Time.time > delay
 			&& Vector3.Distance(enemy.position, transform.position) < 30
 			&& LineOfSight(enemy))
 		{
 			Screen.showCursor = false;
 			delay = Time.time + rate;
-			transform.forward = enemy.position - transform.position;
 			Vector3 pos = transform.position + transform.forward * transform.localScale.z;// * 1f;
 			GameObject clone = Instantiate(shot, pos, transform.rotation) as GameObject;
 			clone.rigidbody.velocity = transform.TransformDirection(new Vector3(0, 0, speed));
