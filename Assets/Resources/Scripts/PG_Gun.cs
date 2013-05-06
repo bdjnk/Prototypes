@@ -4,8 +4,8 @@ using System.Collections;
 public class PG_Gun : MonoBehaviour {
 	
 	public GameObject shot;
-	public float speed = 20f;
-	public float rate = 0.5f;
+	public float speed = 20f; // speed of shot
+	public float rate = 0.5f; // rate of fire, portion of a second before firing again
 	private float delay = 0;
 	
 	public Texture2D crosshairImage;
