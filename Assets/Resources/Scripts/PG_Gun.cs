@@ -35,7 +35,7 @@ public class PG_Gun : MonoBehaviour {
 		}
 		if (Input.GetKeyUp(KeyCode.Escape))
 		{
-			Screen.showCursor = true;
+			Application.LoadLevel("PrototypeMenu");
 		}
 	}
 
