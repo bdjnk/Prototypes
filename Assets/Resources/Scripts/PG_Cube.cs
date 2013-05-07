@@ -34,7 +34,7 @@ public class PG_Cube : MonoBehaviour
 				PG_Cube cubeScript = child.GetComponent<PG_Cube>();
 				if (cubeScript != null) // this is a cube
 				{
-					//cubeScript.networkView.RPC ("Effects",RPCMode.AllBuffered,shot,distance);
+					//cubeScript.networkView.RPC("Effects",RPCMode.AllBuffered,shot,distance);
 					cubeScript.Effects(shot, distance);
 				}
 			}
@@ -53,8 +53,14 @@ public class PG_Cube : MonoBehaviour
 			
 			if (amountBlue > resistence)
 			{
-				networkView.RPC ("UpdateCubeMaterial",RPCMode.AllBuffered,"blue");
-				//renderer.material = blue;
+				if (Network.isClient)
+				{
+					networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "blue");
+				}
+				else // remove when all shall be networked (in the final game)
+				{
+					renderer.material = blue;
+				}
 			}
 		}
 		else if (shot.renderer.sharedMaterial == red)
@@ -64,8 +70,14 @@ public class PG_Cube : MonoBehaviour
 			
 			if (amountRed > resistence)
 			{
-				networkView.RPC ("UpdateCubeMaterial",RPCMode.AllBuffered,"red");
-				//renderer.material = red;
+				if (Network.isClient)
+				{
+					networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "red");
+				}
+				else // remove when all shall be networked (in the final game)
+				{
+					renderer.material = red;
+				}
 			}
 		}
 	}
@@ -73,9 +85,12 @@ public class PG_Cube : MonoBehaviour
 	[RPC]
 	public void UpdateCubeMaterial(string newMaterial){
 	
-		if (newMaterial == "blue"){
+		if (newMaterial == "blue")
+		{
 			renderer.material = blue;
-		} else if (newMaterial == "red"){
+		}
+		else if (newMaterial == "red")
+		{
 			renderer.material = red;
 		}
 			

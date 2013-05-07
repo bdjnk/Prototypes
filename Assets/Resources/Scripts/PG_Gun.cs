@@ -30,7 +30,15 @@ public class PG_Gun : MonoBehaviour {
 			Vector3 pos = transform.position + transform.forward * transform.localScale.z * 1f;
 			//GameObject clone = Instantiate(shot, pos, transform.rotation) as GameObject;
 			//should change to separate group?
-			GameObject clone = (GameObject) Network.Instantiate(shot, pos, transform.rotation,0) as GameObject;
+			GameObject clone;
+			if (Network.isClient)
+			{
+				clone = Network.Instantiate(shot, pos, transform.rotation,0) as GameObject;
+			}
+			else
+			{
+				clone = Instantiate(shot, pos, transform.rotation) as GameObject;
+			}
 			clone.rigidbody.velocity = transform.TransformDirection(new Vector3(0, 0, speed));
 		}
 		if (Input.GetKeyUp(KeyCode.Escape))
