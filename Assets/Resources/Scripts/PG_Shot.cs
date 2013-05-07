@@ -20,7 +20,7 @@ public class PG_Shot : MonoBehaviour
 			//cubeScript.networkView.RPC("Struck", RPCMode.AllBuffered,this);
 			cubeScript.Struck(this);
 		}
-		if (Network.isClient)
+		if (Network.isServer)
 		{
 			Network.Destroy(gameObject);
 		}
