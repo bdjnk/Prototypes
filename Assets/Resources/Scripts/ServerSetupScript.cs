@@ -183,6 +183,13 @@ public class ServerSetupScript : MonoBehaviour {
 		//SpawnPlayer();
 	}
 	
+	void OnPlayerDisconnected(NetworkPlayer player) {        
+		Debug.Log("Clean up after player " + player);        
+		Network.RemoveRPCs(player);        
+		Network.DestroyPlayerObjects(player);    
+	}
+	
+	
 
 	void SpawnPlayer(){
 		//playerNumber++;
@@ -236,6 +243,7 @@ public class ServerSetupScript : MonoBehaviour {
 		if(mse == MasterServerEvent.RegistrationSucceeded){
 			Debug.Log ("Registered Server");
 		}
+
 	
 	}
 }
