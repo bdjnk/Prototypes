@@ -53,7 +53,7 @@ public class PG_Cube : MonoBehaviour
 			
 			if (amountBlue > resistence)
 			{
-				if (Network.isClient)
+				if (Network.connections.Length > 0)
 				{
 					networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "blue");
 				}
@@ -70,7 +70,7 @@ public class PG_Cube : MonoBehaviour
 			
 			if (amountRed > resistence)
 			{
-				if (Network.isClient)
+				if (Network.connections.Length > 0)
 				{
 					networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "red");
 				}
