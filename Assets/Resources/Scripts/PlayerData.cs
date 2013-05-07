@@ -36,7 +36,7 @@ public class PlayerData : MonoBehaviour {
 	void setNewPlayerData(string teamColor, string myName) {
 		//default color is red
 		GameObject playerShotColor = Resources.Load("Prefabs/RedShot") as GameObject;
-		Material playerMaterialColor = Resources.Load ("Materials/Red") as Material;
+		Material playerMaterialColor = Resources.Load("Materials/Red") as Material;
 		if (teamColor == "blue"){
 			playerShotColor = Resources.Load("Prefabs/BlueShot") as GameObject;
 			playerMaterialColor = Resources.Load ("Materials/Blue") as Material;

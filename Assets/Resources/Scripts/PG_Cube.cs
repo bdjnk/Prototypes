@@ -23,6 +23,7 @@ public class PG_Cube : MonoBehaviour
 		building = transform.parent.GetComponent<PG_Building>();
 	}
 	
+	
 	public void Struck(PG_Shot shot)
 	{
 		foreach (Transform child in transform.parent)
@@ -33,11 +34,13 @@ public class PG_Cube : MonoBehaviour
 				PG_Cube cubeScript = child.GetComponent<PG_Cube>();
 				if (cubeScript != null) // this is a cube
 				{
+					//cubeScript.networkView.RPC ("Effects",RPCMode.AllBuffered,shot,distance);
 					cubeScript.Effects(shot, distance);
 				}
 			}
 		}
 	}
+	
 	
 	public void Effects(PG_Shot shot, float distance)
 	{
@@ -50,7 +53,8 @@ public class PG_Cube : MonoBehaviour
 			
 			if (amountBlue > resistence)
 			{
-				renderer.material = blue;
+				networkView.RPC ("UpdateCubeMaterial",RPCMode.AllBuffered,"blue");
+				//renderer.material = blue;
 			}
 		}
 		else if (shot.renderer.sharedMaterial == red)
@@ -60,8 +64,20 @@ public class PG_Cube : MonoBehaviour
 			
 			if (amountRed > resistence)
 			{
-				renderer.material = red;
+				networkView.RPC ("UpdateCubeMaterial",RPCMode.AllBuffered,"red");
+				//renderer.material = red;
 			}
 		}
+	}
+	
+	[RPC]
+	public void UpdateCubeMaterial(string newMaterial){
+	
+		if (newMaterial == "blue"){
+			renderer.material = blue;
+		} else if (newMaterial == "red"){
+			renderer.material = red;
+		}
+			
 	}
 }

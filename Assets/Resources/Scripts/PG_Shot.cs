@@ -17,6 +17,7 @@ public class PG_Shot : MonoBehaviour
 		PG_Cube cubeScript =  other.GetComponent<PG_Cube>();
 		if (cubeScript != null)
 		{
+			//cubeScript.networkView.RPC ("Struck",RPCMode.AllBuffered,this);
 			cubeScript.Struck(this);
 		}
 		Destroy(gameObject);
