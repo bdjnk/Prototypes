@@ -19,17 +19,19 @@ public class ServerSetupScript : MonoBehaviour {
 	public float spawnX = 8f;
 	public float spawnY = 1f;
 	public float spawnZ = -20f;
-
+	
+	private bool GUIgettingServerName = false;
 	private bool GUIgettingPlayerData = false;
 	private bool GUIgettingPlayerName = false;
 	private bool refreshing = false;
 	private HostData[] hostData = null;
 	
 	private string gameName = "123Paint the Town123";//could make this public if we want
-	public string defaultGameInstanceName = "Paint The Town - Ben";
+	public string defaultServerInstanceName = "Paint The Town";
+	public string serverInstanceName = "";
 	
 	private string myTeamInputColor = "red";
-	private string myInputName = "Your Name";
+	private string myInputName = "";
 	
 	// Use this for initialization
 	void Start () {
@@ -80,16 +82,28 @@ public class ServerSetupScript : MonoBehaviour {
 		
 	
 	void OnGUI() {
-		if(!Network.isClient && !Network.isServer){
+		
+		//no server connection yet
+		if(!Network.isClient && !Network.isServer && !GUIgettingServerName){
+			if (mainPlayer != null){
+				mainPlayer.GetComponentInChildren<Camera>().GetComponent<MouseLook>().enabled = false;
+				mainPlayer.GetComponentInChildren<Camera>().enabled = false;
+				mainPlayer.GetComponent<FPSInputController>().enabled = false;
+				mainPlayer.GetComponent<CharacterMotor>().enabled = false;
+				mainPlayer.GetComponent<MouseLook>().enabled = false;
+				Screen.lockCursor = false;
+				Screen.showCursor = true;
+			}  
+			
 			if(GUI.Button(new Rect(buttonX,buttonY,buttonW,buttonH),"Start Server")){
 				Debug.Log ("Starting Server");
-				StartServer ();
+				GUIgettingServerName = true;
+				//StartServer ();
 			}
 			
 			if(GUI.Button(new Rect(buttonX,buttonY + 1.2f * buttonW,buttonW,buttonH),"Refresh Hosts")){
 				Debug.Log ("Refreshing");
 				refreshHostList();
-				//StartServer ();
 			}
 			if(hostData!=null){
 				for (int i=0;i<hostData.Length;i++)
@@ -104,50 +118,85 @@ public class ServerSetupScript : MonoBehaviour {
 				}
 			}
 		}
+		
+		//get server name section
+		if(GUIgettingServerName){
+			Screen.lockCursor = false;
+			Screen.showCursor = true;
+			GUI.Box(new Rect (buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f),"Enter Your Unique Server Name");
+	        serverInstanceName = GUI.TextField(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*2f),buttonW*3f,buttonH*0.5f), serverInstanceName, 20);
+			if(GUI.Button(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*3f),buttonW*3f,buttonH*0.5f),"Submit")){
+				bool clearedAllNames = true;
+				if(hostData!=null){
+					for (int i=0;i<hostData.Length;i++){//check for uniqueness here
+						if(serverInstanceName==hostData[i].ToString()){
+							clearedAllNames = false;
+						}
+					}
+				}
+				if(serverInstanceName!="" && clearedAllNames){
+					GUIgettingServerName = false;
+					StartServer();
+				}
+			}
+		
+		}
+			
+		//get player team section
 		if(GUIgettingPlayerData){
+			Screen.lockCursor = false;
+			Screen.showCursor = true;
 			int redTeamTotalPlayers = mainGame.GetComponent<GameManagerScript>().getRedTeamCount();
 			int blueTeamTotalPlayers = mainGame.GetComponent<GameManagerScript>().getBlueTeamCount();
+			string redTeamPlayers = mainGame.GetComponent<GameManagerScript>().getRedTeamString();
+			string blueTeamPlayers = mainGame.GetComponent<GameManagerScript>().getBlueTeamString();
 			//Debug.Log ("red:" + redTeamTotalPlayers);
 			//Debug.Log ("blue:" + blueTeamTotalPlayers);
 			
 			
-			if(GUI.Button(new Rect(buttonX,buttonY,buttonW,buttonH),"Red Team (" + redTeamTotalPlayers + ")")){
+			if(GUI.Button(new Rect(buttonX,buttonY,buttonW*1.5f,buttonH*1.5f),"Red Team (" + redTeamTotalPlayers + ")")){
 				Debug.Log ("Red Team Selected");
 				myTeamInputColor = "red";
 				GUIgettingPlayerData = false;
 				GUIgettingPlayerName = true;
 			}
+				
+			GUI.Box(new Rect(buttonX+buttonW*2,buttonY,buttonW*1.5f,buttonH*1.5f),"Red Team Members: \n" + redTeamPlayers);
 			
-			if(GUI.Button(new Rect(buttonX,buttonY + 1.2f * buttonW,buttonW,buttonH),"Blue Team (" + blueTeamTotalPlayers + ")")){
+			if(GUI.Button(new Rect(buttonX,buttonY + 1.2f * buttonW,buttonW*1.5f,buttonH*1.5f),"Blue Team (" + blueTeamTotalPlayers + ")")){
 				Debug.Log ("Blue Team Selected");
 				myTeamInputColor = "blue";
 				GUIgettingPlayerData = false;
 				GUIgettingPlayerName = true;	
 			}
-			
+				
+			GUI.Box(new Rect(buttonX+buttonW*2,buttonY+1.2f * buttonW,buttonW*1.5f,buttonH*1.5f),"Blue Team Members: \n" + blueTeamPlayers);
 			
 		}
+			
+		//get player name section
 		if (GUIgettingPlayerName){
+			//may want to clean this up by moving scope outward
+			string redTeamPlayers = mainGame.GetComponent<GameManagerScript>().getRedTeamString();
+			string blueTeamPlayers = mainGame.GetComponent<GameManagerScript>().getBlueTeamString();
 			
-	        myInputName = GUI.TextField(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f), myInputName, 15);
-			if(GUI.Button(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*2),buttonW*3f,buttonH*0.5f),"Submit")){
-				SpawnPlayer();
-				GUIgettingPlayerName = false;
+			Screen.lockCursor = false;
+			Screen.showCursor = true;
+			GUI.Box(new Rect (buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f),"Enter Your Name Below");
+	        myInputName = GUI.TextField(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*2f),buttonW*3f,buttonH*0.5f), myInputName, 15);
+			if(GUI.Button(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*3f),buttonW*3f,buttonH*0.5f),"Submit")){
+				if(myInputName!=""){//check for uniqueness here
+					if (myTeamInputColor == "blue" && !blueTeamPlayers.Contains(myInputName)){
+						SpawnPlayer();
+						GUIgettingPlayerName = false;
+					}
+					if (myTeamInputColor == "red" && !redTeamPlayers.Contains(myInputName)){
+						SpawnPlayer();
+						GUIgettingPlayerName = false;
+					} 
+				}
 			}
-			//SpawnPlayer();
-			/*
-			foreach (char c in Input.inputString) { 
-				if (c == "\b"[0])     
-					if (guiText.text.Length != 0)  
-						guiText.text = guiText.text.Substring(0, guiText.text.Length - 1);  
-					else
-						if (c == "\n"[0] || c == "\r"[0]) 
-							print("User entered his name: " + guiText.text);  
-						else guiText.text += c;    
-			}*/
 		}
-		
-		
 	}
 
 	void StartServer(){
@@ -156,7 +205,8 @@ public class ServerSetupScript : MonoBehaviour {
 				
 		// Use NAT punchthrough if no public IP present 
 		//Initialize this server (local)
-		Network.InitializeServer(8, 26000, !Network.HavePublicAddress());
+		int portNum = Random.Range(25001,26100);//some random numbers for testing only
+		Network.InitializeServer(8, portNum, !Network.HavePublicAddress());
 		//Network.InitializeServer (32,23466, !Network.HavePublicAddress());
 		
 		//Use this if using our own local masterserver instead of Unity's
@@ -165,7 +215,14 @@ public class ServerSetupScript : MonoBehaviour {
 		//MasterServer.dedicatedServer = true;
 		
 		//Register our game with Unitys Master Server
-		MasterServer.RegisterHost(gameName, defaultGameInstanceName, "CSS385 Game");
+		if(serverInstanceName != ""){
+			defaultServerInstanceName = serverInstanceName;
+		} else {
+			Random.Range (1f,1000f).ToString();
+			string randomGameNum = " " + Random.Range (1f,1000f).ToString();
+			defaultServerInstanceName += randomGameNum;
+		}
+		MasterServer.RegisterHost(gameName, defaultServerInstanceName, "CSS385 Game");
 		
 		//Lists the IP address for MasterServer
 		//Debug.Log("Master Server Info:" + MasterServer.ipAddress +":"+ MasterServer.port);
@@ -184,10 +241,9 @@ public class ServerSetupScript : MonoBehaviour {
 	}
 	
 	void OnPlayerDisconnected(NetworkPlayer player) {        
-		Debug.Log("Clean up after player " + player);        
-		
+		Debug.Log("Clean up after player " + player);        	
 		Network.RemoveRPCs(player);        
-		//Network.DestroyPlayerObjects(player);    
+		Network.DestroyPlayerObjects(player);  
 	}
 	
 	
@@ -218,7 +274,7 @@ public class ServerSetupScript : MonoBehaviour {
 		} else {
 			mainPlayer.networkView.RPC ("SetMyName",RPCMode.AllBuffered,"Server");
 		}*/
-			
+		
 	}
 	
 	/*

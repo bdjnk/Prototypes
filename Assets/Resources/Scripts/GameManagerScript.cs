@@ -6,10 +6,16 @@ public class GameManagerScript : MonoBehaviour
 	private int numberOfPlayers;
 	private int redTeamTotalPlayers;
 	private int blueTeamTotalPlayers;
+	private string[] blueTeamPlayers;
+	private string[] redTeamPlayers;
+	private int maxPlayers;
 	
 	void Start(){
 		redTeamTotalPlayers = 0;
 		blueTeamTotalPlayers = 0;
+		maxPlayers = 8;
+		blueTeamPlayers = new string[maxPlayers];
+		redTeamPlayers = new string[maxPlayers];
 		//numberOfPlayers++;
 	}
 	
@@ -20,6 +26,22 @@ public class GameManagerScript : MonoBehaviour
 	public int getBlueTeamCount(){
 		return blueTeamTotalPlayers;
 	}
+	
+	public string getRedTeamString(){
+		string temp = "";
+		for (int i = 0;i<redTeamPlayers.Length;i++){
+			temp += redTeamPlayers[i] + "\n";
+		}
+		return temp;
+	}
+	
+	public string getBlueTeamString(){
+		string temp = "";
+		for (int i = 0;i<blueTeamPlayers.Length;i++){
+			temp += blueTeamPlayers[i] + "\n";
+		}
+		return temp;
+	}
 
 	[RPC]
 	public void updateTeamData(string teamColor, string name){
@@ -28,12 +50,16 @@ public class GameManagerScript : MonoBehaviour
 		
 		if(teamColor=="blue"){
 			//TO DO: add to team name list 
+			blueTeamPlayers[blueTeamTotalPlayers] = name;
 			blueTeamTotalPlayers++;
+			
 			//mainPlayer.name = "Blue Player (" + name +")";
 			//playerShotColor = Resources.Load("Prefabs/BlueShot") as GameObject;
 			//playerMaterialColor = Resources.Load ("Materials/Blue") as Material;
 		}
 		else{
+			
+			redTeamPlayers[redTeamTotalPlayers] = name;
 			redTeamTotalPlayers++;
 			//mainPlayer.name = "Red Player (" + name +")";
 		}

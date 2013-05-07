@@ -29,12 +29,13 @@ public class PG_Cube : MonoBehaviour
 		foreach (Transform child in transform.parent)
 		{
 			float distance = Vector3.Distance(transform.position, child.position);
+			//testing for minimum reaction on adjacent
 			if (distance < 2.9f) // only consider adjacent cubes
 			{
 				PG_Cube cubeScript = child.GetComponent<PG_Cube>();
 				if (cubeScript != null) // this is a cube
 				{
-					//cubeScript.networkView.RPC("Effects",RPCMode.AllBuffered,shot,distance);
+					
 					cubeScript.Effects(shot, distance);
 				}
 			}
@@ -53,7 +54,7 @@ public class PG_Cube : MonoBehaviour
 			
 			if (amountBlue > resistence)
 			{
-				if (Network.connections.Length > 0)
+				if (Network.isClient || Network.isServer)
 				{
 					networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "blue");
 				}
@@ -70,7 +71,7 @@ public class PG_Cube : MonoBehaviour
 			
 			if (amountRed > resistence)
 			{
-				if (Network.connections.Length > 0)
+				if (Network.isClient || Network.isServer)
 				{
 					networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "red");
 				}

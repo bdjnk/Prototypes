@@ -31,7 +31,7 @@ public class PG_Gun : MonoBehaviour {
 			//GameObject clone = Instantiate(shot, pos, transform.rotation) as GameObject;
 			//should change to separate group?
 			GameObject clone;
-			if (Network.isClient)
+			if (Network.isClient || Network.isServer)
 			{
 				clone = Network.Instantiate(shot, pos, transform.rotation,0) as GameObject;
 			}
