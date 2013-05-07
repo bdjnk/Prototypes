@@ -21,6 +21,10 @@ public class PlayerData : MonoBehaviour {
 		//set colors
 	}
 	
+	public string getMyTeamColor(){
+		return myTeam;
+	}
+	
 	[RPC]
 	void SetMyName(string name){
 		this.name = name;	
