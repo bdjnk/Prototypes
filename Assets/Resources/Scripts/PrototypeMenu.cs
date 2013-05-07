@@ -5,7 +5,7 @@ public class PrototypeMenu : MonoBehaviour {
 
 	void OnGUI()
 	{
-		float height = Screen.height / 6.0f;
+		float height = Screen.height / 5.0f;
 		
 		if (GUI.Button(new Rect(0, height*0, Screen.width, height), "Basic Controls"))
 		{
@@ -26,10 +26,6 @@ public class PrototypeMenu : MonoBehaviour {
 		if (GUI.Button(new Rect(0, height*4, Screen.width, height), "Upgrades"))
 		{
 			Application.LoadLevel("Upgrades");
-		}
-		if (GUI.Button(new Rect(0, height*5, Screen.width, height), "Lighting"))
-		{
-			Application.LoadLevel("Lighting");
 		}
 	}
 	
