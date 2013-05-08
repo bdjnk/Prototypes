@@ -14,8 +14,8 @@ public class UpgradeManager : MonoBehaviour {
 	void Update () {
 		if (Input.GetKeyUp(KeyCode.E))
 		{
-			GameObject cube = cubes[Random.Range(0, cubes.Length)]; // O(1)
-			
+			GameObject cube = cubes[Random.Range(0, cubes.Length)]; // grab a random cube from the map
+			PG_Cube cubeScript = cube.GetComponent<PG_Cube>();
 		}
 	}
 }
