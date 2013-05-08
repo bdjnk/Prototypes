@@ -40,9 +40,7 @@ public class MouseLook : MonoBehaviour {
 
 	void Update ()
 	{
-		//temporary pause updates while p is down
-		
-		if (!Input.GetKeyDown("p")){
+	
 			if (axes == RotationAxes.MouseXAndY)
 			{
 				float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;
@@ -63,9 +61,7 @@ public class MouseLook : MonoBehaviour {
 				
 				transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
 			}
-		} else {
-			Debug.Log ("Camera paused");
-		}
-	}
+		} 
+	
 	
 }

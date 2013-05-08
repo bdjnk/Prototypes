@@ -7,6 +7,7 @@ public class PlayerData : MonoBehaviour {
 	private int blueTeamTotalPlayers;
 	private int redTeamTotalPlayers;
 	private string myTeam = "red";
+	private bool mouseLooking = true;
 	
 	private Color playerColor = Color.red;
 	
@@ -54,5 +55,24 @@ public class PlayerData : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+			//temporary pause updates while p is down
+		
+		if (Input.GetKeyDown("p")){
+			updateMouseLook(!mouseLooking);
+			mouseLooking = !mouseLooking;
+		}
+		
 	}
+	
+	public void updateMouseLook(bool mouseLooking){
+		GetComponentInChildren<Camera>().GetComponent<MouseLook>().enabled = mouseLooking;
+		//GetComponentInChildren<Camera>().enabled = mouseLooking;
+		GetComponent<FPSInputController>().enabled = mouseLooking;
+		GetComponent<CharacterMotor>().enabled = mouseLooking;
+		GetComponent<MouseLook>().enabled = mouseLooking;
+		Screen.lockCursor = mouseLooking;
+		Screen.showCursor = mouseLooking;
+	
+	}
+	
 }
