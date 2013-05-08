@@ -3,8 +3,9 @@ using System.Collections;
 
 public class PG_Shot : MonoBehaviour
 {
+	public PG_Gun gun;
+	
 	public float persist = 6f;
-	public int power = 3;
 	private float timeAtStart;
 	
 	// Use this for initialization
