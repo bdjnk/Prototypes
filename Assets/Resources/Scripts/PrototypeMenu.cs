@@ -19,13 +19,13 @@ public class PrototypeMenu : MonoBehaviour {
 		{
 			Application.LoadLevel("TurretBot");
 		}
-		if (GUI.Button(new Rect(0, height*3, Screen.width, height), "Multiplayer Networking"))
-		{
-			Application.LoadLevel("Networking");
-		}
-		if (GUI.Button(new Rect(0, height*4, Screen.width, height), "Upgrades"))
+		if (GUI.Button(new Rect(0, height*3, Screen.width, height), "Upgrades"))
 		{
 			Application.LoadLevel("Upgrades");
+		}
+		if (GUI.Button(new Rect(0, height*4, Screen.width, height), "Multiplayer Networking"))
+		{
+			Application.LoadLevel("Networking");
 		}
 	}
 	
