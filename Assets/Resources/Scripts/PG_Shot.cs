@@ -13,25 +13,21 @@ public class PG_Shot : MonoBehaviour
 	{	
 		if (!(Network.isServer || Network.isClient)){
 			Destroy(gameObject, persist);
-		} //else { 
-		//	timeAtStart = Network.time;
-		//}
-		timeAtStart = Time.realtimeSinceStartup;	
+		} 
+		
+		timeAtStart = Time.time;	
 	}
 	
 	void Update()
 	{
 		//persist for network functionality
-		
-		if(Time.realtimeSinceStartup - timeAtStart > persist+1f){	
+		if(Time.time - timeAtStart > persist + 1f){
+			
 			if (Network.isServer || Network.isClient)
-			{ 
-				//if(Network.time - timeAtStart > persist+1f){
-					Network.Destroy(gameObject);
-			//	}
+			{
+				Network.Destroy(gameObject);
 			}
 		}
-		
 			
 	}
 	

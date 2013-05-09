@@ -26,7 +26,7 @@ public class ServerSetupScript : MonoBehaviour {
 	private bool refreshing = false;
 	private HostData[] hostData = null;
 	
-	private string gameName = "123Paint the Town123";//could make this public if we want
+	private string gameName = "123Paint the Town123"; //could make this public if we want
 	public string defaultServerInstanceName = "Paint The Town";
 	public string serverInstanceName = "";
 	

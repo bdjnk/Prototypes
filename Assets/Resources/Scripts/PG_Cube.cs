@@ -18,6 +18,12 @@ public class PG_Cube : MonoBehaviour
 	private float amountBlue;
 	private float amountRed;
 	
+	private Up up = Up.none;
+	private enum Up
+	{
+		none, blast, fast, rapid, move, evade
+	};
+	
 	private PG_Building building;
 	
 	void Start()
@@ -44,36 +50,32 @@ public class PG_Cube : MonoBehaviour
 		Texture upgrade = renderer.material.GetTexture("_DecalTex");
 		if (upgrade != null)
 		{
-			/* this is silly, fix with an enum in production
-			 * 
-			 * advantages:
-			 * 
-			 */
+			// this is silly, fix with an enum in production
 			if (upgrade.name == "BlastShots")
 			{
 				if (shot.gun.bs == null) {
-					shot.gun.bs = Resources.Load("Textures/BlastShots") as Texture;
+					shot.gun.bs = upgrade;
 					shot.gun.power += 2;
 				}
 			}
 			else if (upgrade.name == "EvadeBots")
 			{
 				if (shot.gun.eb == null) {
-					shot.gun.eb = Resources.Load("Textures/EvadeBots") as Texture;
+					shot.gun.eb = upgrade;
 					// do nothing else, for now
 				}
 			}
 			else if (upgrade.name == "FastShots")
 			{
 				if (shot.gun.fs == null) {
-					shot.gun.fs = Resources.Load("Textures/FastShots") as Texture;
+					shot.gun.fs = upgrade;
 					shot.gun.speed *= 2;
 				}
 			}
-			else if (upgrade.name == "QuickMove")
+			else if (upgrade.name == "MoveQuick")
 			{
 				if (shot.gun.qm == null) {
-					shot.gun.qm = Resources.Load("Textures/QuickMove") as Texture;
+					shot.gun.qm = upgrade;
 					CharacterMotor cm = shot.gun.transform.parent.GetComponent<CharacterMotor>();
 					cm.jumping.baseHeight = 4;
 					cm.movement.maxForwardSpeed *= 2;
@@ -85,7 +87,7 @@ public class PG_Cube : MonoBehaviour
 			else if (upgrade.name == "RapidFire")
 			{
 				if (shot.gun.rf == null) {
-					shot.gun.rf = Resources.Load("Textures/RapidFire") as Texture;
+					shot.gun.rf = upgrade;
 					shot.gun.rate /= 2;
 				}
 			}
