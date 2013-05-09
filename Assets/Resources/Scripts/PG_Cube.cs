@@ -20,21 +20,6 @@ public class PG_Cube : MonoBehaviour
 	
 	private PG_Building building;
 	
-	private Texture bs, eb, fs, qm, rf;
-	void OnGUI()
-	{
-		if (bs != null)
-			GUI.DrawTexture(new Rect(0, 0, 40, 40), bs);
-		if (rf != null)
-			GUI.DrawTexture(new Rect(40, 0, 40, 40), rf);
-		if (fs != null)
-			GUI.DrawTexture(new Rect(80, 0, 40, 40), fs);
-		if (qm != null)
-			GUI.DrawTexture(new Rect(120, 0, 40, 40), qm);
-		if (eb != null)
-			GUI.DrawTexture(new Rect(160, 0, 40, 40), eb);
-	}
-	
 	void Start()
 	{
 		building = transform.parent.GetComponent<PG_Building>();
@@ -66,29 +51,29 @@ public class PG_Cube : MonoBehaviour
 			 */
 			if (upgrade.name == "BlastShots")
 			{
-				if (bs == null) {
-					bs = Resources.Load("Textures/BlastShots") as Texture;
+				if (shot.gun.bs == null) {
+					shot.gun.bs = Resources.Load("Textures/BlastShots") as Texture;
 					shot.gun.power += 2;
 				}
 			}
 			else if (upgrade.name == "EvadeBots")
 			{
-				if (eb == null) {
-					eb = Resources.Load("Textures/EvadeBots") as Texture;
+				if (shot.gun.eb == null) {
+					shot.gun.eb = Resources.Load("Textures/EvadeBots") as Texture;
 					// do nothing else, for now
 				}
 			}
 			else if (upgrade.name == "FastShots")
 			{
-				if (fs == null) {
-					fs = Resources.Load("Textures/FastShots") as Texture;
+				if (shot.gun.fs == null) {
+					shot.gun.fs = Resources.Load("Textures/FastShots") as Texture;
 					shot.gun.speed *= 2;
 				}
 			}
 			else if (upgrade.name == "QuickMove")
 			{
-				if (qm == null) {
-					qm = Resources.Load("Textures/QuickMove") as Texture;
+				if (shot.gun.qm == null) {
+					shot.gun.qm = Resources.Load("Textures/QuickMove") as Texture;
 					CharacterMotor cm = shot.gun.transform.parent.GetComponent<CharacterMotor>();
 					cm.jumping.baseHeight = 4;
 					cm.movement.maxForwardSpeed *= 2;
@@ -99,8 +84,8 @@ public class PG_Cube : MonoBehaviour
 			}
 			else if (upgrade.name == "RapidFire")
 			{
-				if (rf == null) {
-					rf = Resources.Load("Textures/RapidFire") as Texture;
+				if (shot.gun.rf == null) {
+					shot.gun.rf = Resources.Load("Textures/RapidFire") as Texture;
 					shot.gun.rate /= 2;
 				}
 			}

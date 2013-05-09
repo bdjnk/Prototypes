@@ -10,14 +10,26 @@ public class PG_Gun : MonoBehaviour {
 	private float delay = 0;
 	
 	public Texture2D crosshairImage;
+	public Texture bs, eb, fs, qm, rf;
 	
-	void OnGUI()
+	void OnGUI() // replace with GUITextures (much faster)
 	{
-		if (transform.parent.tag != "bot")
+		if (tag != "Bot") // human player
 		{
 			float xMin = (Screen.width / 2) - (crosshairImage.width / 2);
 			float yMin = (Screen.height / 2) - (crosshairImage.height / 2);
 			GUI.DrawTexture(new Rect(xMin, yMin, crosshairImage.width, crosshairImage.height), crosshairImage);
+			
+			if (bs != null)
+				GUI.DrawTexture(new Rect(0, 0, 40, 40), bs);
+			if (rf != null)
+				GUI.DrawTexture(new Rect(40, 0, 40, 40), rf);
+			if (fs != null)
+				GUI.DrawTexture(new Rect(80, 0, 40, 40), fs);
+			if (qm != null)
+				GUI.DrawTexture(new Rect(120, 0, 40, 40), qm);
+			if (eb != null)
+				GUI.DrawTexture(new Rect(160, 0, 40, 40), eb);
 		}
 	}
 	
@@ -28,7 +40,7 @@ public class PG_Gun : MonoBehaviour {
 	
 	void Update ()
 	{
-		if (transform.parent.tag != "bot")
+		if (tag != "Bot") // human player
 		{
 			if (Input.GetButton("Fire1"))
 			{
