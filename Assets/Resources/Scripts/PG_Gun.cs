@@ -4,18 +4,33 @@ using System.Collections;
 public class PG_Gun : MonoBehaviour {
 	
 	public GameObject shot;
-	public float speed = 20f; // speed of shot
+	public float speed = 15f; // speed of shot
 	public float rate = 0.2f; // rate of fire, portion of a second before firing again
 	public float power = 3f;
 	private float delay = 0;
 	
 	public Texture2D crosshairImage;
+	public Texture bs, eb, fs, qm, rf;
 	
-	void OnGUI()
+	void OnGUI() // replace with GUITextures (much faster)
 	{
-		float xMin = (Screen.width / 2) - (crosshairImage.width / 2);
-		float yMin = (Screen.height / 2) - (crosshairImage.height / 2);
-		GUI.DrawTexture(new Rect(xMin, yMin, crosshairImage.width, crosshairImage.height), crosshairImage);
+		if (tag != "Bot") // human player
+		{
+			float xMin = (Screen.width / 2) - (crosshairImage.width / 2);
+			float yMin = (Screen.height / 2) - (crosshairImage.height / 2);
+			GUI.DrawTexture(new Rect(xMin, yMin, crosshairImage.width, crosshairImage.height), crosshairImage);
+			
+			if (bs != null)
+				GUI.DrawTexture(new Rect(0, 0, 40, 40), bs);
+			if (rf != null)
+				GUI.DrawTexture(new Rect(40, 0, 40, 40), rf);
+			if (fs != null)
+				GUI.DrawTexture(new Rect(80, 0, 40, 40), fs);
+			if (qm != null)
+				GUI.DrawTexture(new Rect(120, 0, 40, 40), qm);
+			if (eb != null)
+				GUI.DrawTexture(new Rect(160, 0, 40, 40), eb);
+		}
 	}
 	
 	void Start ()
@@ -25,18 +40,18 @@ public class PG_Gun : MonoBehaviour {
 	
 	void Update ()
 	{
-		if (transform.parent.tag == "bot")
+		if (tag != "Bot") // human player
 		{
-			return;	
-		}
-		if (Input.GetButton("Fire1"))
-		{
-			Screen.showCursor = false;
-			Shoot();
-		}
-		if (Input.GetKeyUp(KeyCode.Escape))
-		{
-			Application.LoadLevel("PrototypeMenu");
+			if (Input.GetButton("Fire1"))
+			{
+				Screen.showCursor = false;
+				Shoot();
+			}
+			if (Input.GetKeyUp(KeyCode.Escape))
+			{
+				Network.Disconnect();
+				Application.LoadLevel("PrototypeMenu");
+			}
 		}
 	}
 	
@@ -49,7 +64,8 @@ public class PG_Gun : MonoBehaviour {
 			//GameObject clone = Instantiate(shot, pos, transform.rotation) as GameObject;
 			//should change to separate group?
 			GameObject clone;
-			if (Network.isClient || Network.isServer)
+			if (Network.connections.Length > 0)
+			//if (Network.isClient || Network.isServer)
 			{
 				clone = Network.Instantiate(shot, pos, transform.rotation,0) as GameObject;
 			}

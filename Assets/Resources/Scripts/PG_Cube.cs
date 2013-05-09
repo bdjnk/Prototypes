@@ -11,6 +11,8 @@ public class PG_Cube : MonoBehaviour
 	public Texture red;
 	public Texture blue;
 	
+	public GUITexture test;
+	
 	public int resistence = 4;
 	public int maxColor = 5;
 	private float amountBlue;
@@ -22,7 +24,6 @@ public class PG_Cube : MonoBehaviour
 	{
 		building = transform.parent.GetComponent<PG_Building>();
 	}
-	
 	
 	public void Struck(PG_Shot shot)
 	{		
@@ -43,31 +44,50 @@ public class PG_Cube : MonoBehaviour
 		Texture upgrade = renderer.material.GetTexture("_DecalTex");
 		if (upgrade != null)
 		{
-			// this is silly, fix with an enum in production
+			/* this is silly, fix with an enum in production
+			 * 
+			 * advantages:
+			 * 
+			 */
 			if (upgrade.name == "BlastShots")
 			{
-				shot.gun.power += 3;
+				if (shot.gun.bs == null) {
+					shot.gun.bs = Resources.Load("Textures/BlastShots") as Texture;
+					shot.gun.power += 2;
+				}
 			}
 			else if (upgrade.name == "EvadeBots")
 			{
-				// do nothing, for now
+				if (shot.gun.eb == null) {
+					shot.gun.eb = Resources.Load("Textures/EvadeBots") as Texture;
+					// do nothing else, for now
+				}
 			}
 			else if (upgrade.name == "FastShots")
 			{
-				shot.gun.speed *= 2;
+				if (shot.gun.fs == null) {
+					shot.gun.fs = Resources.Load("Textures/FastShots") as Texture;
+					shot.gun.speed *= 2;
+				}
 			}
 			else if (upgrade.name == "QuickMove")
 			{
-				CharacterMotor cm = shot.gun.transform.parent.GetComponent<CharacterMotor>();
-				cm.jumping.baseHeight = 4;
-				cm.movement.maxForwardSpeed *= 2;
-				cm.movement.maxSidewaysSpeed *= 2;
-				cm.movement.maxBackwardsSpeed *= 2;
-				cm.movement.maxGroundAcceleration *= 3;
+				if (shot.gun.qm == null) {
+					shot.gun.qm = Resources.Load("Textures/QuickMove") as Texture;
+					CharacterMotor cm = shot.gun.transform.parent.GetComponent<CharacterMotor>();
+					cm.jumping.baseHeight = 4;
+					cm.movement.maxForwardSpeed *= 2;
+					cm.movement.maxSidewaysSpeed *= 2;
+					cm.movement.maxBackwardsSpeed *= 2;
+					cm.movement.maxGroundAcceleration *= 3;
+				}
 			}
 			else if (upgrade.name == "RapidFire")
 			{
-				shot.gun.rate /= 2;
+				if (shot.gun.rf == null) {
+					shot.gun.rf = Resources.Load("Textures/RapidFire") as Texture;
+					shot.gun.rate /= 2;
+				}
 			}
 			renderer.material.SetTexture("_DecalTex", null);
 		}
