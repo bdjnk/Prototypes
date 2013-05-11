@@ -23,6 +23,8 @@ public class ServerSetupScript : MonoBehaviour {
 	private bool GUIgettingServerName = false;
 	private bool GUIgettingPlayerData = false;
 	private bool GUIgettingPlayerName = false;
+	private bool networkMode = false;//using network mode
+	
 	private bool refreshing = false;
 	private HostData[] hostData = null;
 	
@@ -44,26 +46,6 @@ public class ServerSetupScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
-		/*
-		  //for testing of object movement
-		if(mainPlayer!=null){
-			Vector3 translatePosition = new Vector3((Input.GetAxis ("Vertical")  * mainPlayer.transform.forward * 
-			 mSpeed).x,0f, (Input.GetAxis ("Vertical")  * mainPlayer.transform.forward *
-			 mSpeed).z);	
-			
-			mainPlayer.transform.position += translatePosition;
-			mainPlayer.transform.RotateAround (Vector3.up, Input.GetAxis("Horizontal")*0.1f);
-			
-		}
-		*/
-		/*
-		if (networkView.name!=playerName){
-			GameObject gObj = GameObject.Find(playerName);
-			gObj.GetComponent<PlayerScript>().enabled = false;
-		
-		}
-		*/
-		
 		if(refreshing){
 			if(MasterServer.PollHostList().Length > 0){
 				refreshing = false;
@@ -83,7 +65,7 @@ public class ServerSetupScript : MonoBehaviour {
 	
 	void OnGUI() {
 		
-		//no server connection yet
+		//no server connection at start
 		if(!Network.isClient && !Network.isServer && !GUIgettingServerName){
 			if (mainPlayer != null){
 				mainPlayer.GetComponentInChildren<Camera>().GetComponent<MouseLook>().enabled = false;
@@ -146,6 +128,8 @@ public class ServerSetupScript : MonoBehaviour {
 		if(GUIgettingPlayerData){
 			Screen.lockCursor = false;
 			Screen.showCursor = true;
+			
+			//prep to show team data
 			int redTeamTotalPlayers = mainGame.GetComponent<GameManagerScript>().getRedTeamCount();
 			int blueTeamTotalPlayers = mainGame.GetComponent<GameManagerScript>().getBlueTeamCount();
 			string redTeamPlayers = mainGame.GetComponent<GameManagerScript>().getRedTeamString();
@@ -229,8 +213,12 @@ public class ServerSetupScript : MonoBehaviour {
 	}
 	
 	void OnServerInitialized(){
+		mainGame.GetComponent<GameManagerScript>().resetAllData();
 		Debug.Log ("Server initialized");
 		GUIgettingPlayerData = true;
+		
+		//reset all Data
+		
 		//SpawnPlayer();
 	}
 	
@@ -240,10 +228,22 @@ public class ServerSetupScript : MonoBehaviour {
 		//SpawnPlayer();
 	}
 	
-	void OnPlayerDisconnected(NetworkPlayer player) {        
-		Debug.Log("Clean up after player " + player);        	
+	void OnPlayerConnected(NetworkPlayer player){
+		Debug.Log("Setup for player " + player + " " + player.guid + " " + playerNumber);
+		
+	}
+	
+	
+	IEnumerator OnPlayerDisconnected(NetworkPlayer player) {        
+		Debug.Log("Clean up after player " + player + " " + player.guid + " " + playerNumber);        	
+		mainGame.networkView.RPC ("removePlayer",RPCMode.AllBuffered,player.guid);
+		
+		yield return new WaitForSeconds(5.0F);
+		//need to include this but with delay for clients to update
 		Network.RemoveRPCs(player);        
 		Network.DestroyPlayerObjects(player);  
+		
+	
 	}
 	
 	
@@ -260,21 +260,9 @@ public class ServerSetupScript : MonoBehaviour {
 		mainPlayer.GetComponentInChildren<Camera>().GetComponent<MouseLook>().enabled = true;
 		mainPlayer.GetComponentInChildren<Camera>().GetComponent<PG_Gun>().enabled = true;
 		
-		mainGame.networkView.RPC ("updateTeamData",RPCMode.AllBuffered,myTeamInputColor,myInputName);
+		mainGame.networkView.RPC ("updateTeamData",RPCMode.AllBuffered,myTeamInputColor,myInputName,Network.player.guid);
 		mainPlayer.networkView.RPC ("setNewPlayerData",RPCMode.AllBuffered,myTeamInputColor,myInputName);
-		//if(playerNumber==0)//first player into game
-		//	playerNumber++;
-		
-		//SetPlayerData ();
-		
-		//networkView.RPC ("SetPlayerData",RPCMode.AllBuffered);
-		/*
-		if(Network.isClient){
-			mainPlayer.networkView.RPC ("SetMyName",RPCMode.AllBuffered,"Client");
-		} else {
-			mainPlayer.networkView.RPC ("SetMyName",RPCMode.AllBuffered,"Server");
-		}*/
-		
+		//playerNumber;
 	}
 	
 	/*

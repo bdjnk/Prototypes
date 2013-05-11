@@ -3,20 +3,37 @@ using System.Collections;
 
 public class GameManagerScript : MonoBehaviour
 {
-	private int numberOfPlayers;
+
 	private int redTeamTotalPlayers;
 	private int blueTeamTotalPlayers;
+	//private int totalPlayers;
 	private string[] blueTeamPlayers;
 	private string[] redTeamPlayers;
+	//private string[] allPlayers;
+	
+	//array to relate player id to name
+	public struct playerInfo{
+		public string playerName;
+		public string playerGuid;
+		public string playerTeamColor;
+	}
+	private playerInfo[] allPlayers;
+	private int numberOfPlayers;
+	
+	
 	private int maxPlayers;
 	
 	void Start(){
+		resetAllData();
+	}
+	
+	public void resetAllData(){
 		redTeamTotalPlayers = 0;
 		blueTeamTotalPlayers = 0;
 		maxPlayers = 8;
 		blueTeamPlayers = new string[maxPlayers];
 		redTeamPlayers = new string[maxPlayers];
-		//numberOfPlayers++;
+		allPlayers = new playerInfo[maxPlayers];
 	}
 	
 	public int getRedTeamCount(){
@@ -42,29 +59,78 @@ public class GameManagerScript : MonoBehaviour
 		}
 		return temp;
 	}
-
+	
 	[RPC]
-	public void updateTeamData(string teamColor, string name){
-		//GameObject playerShotColor = Resources.Load("Prefabs/RedShot") as GameObject;
-		//Material playerMaterialColor = Resources.Load ("Materials/Red") as Material;
+	public void removePlayer(string playerID){
+		//get name from ID
+		string myName=null;
+		string teamColor=null;
+		for (int i =0;i<allPlayers.Length;i++){
+			Debug.Log ("Looking for: " + playerID);
+			//Debug.Log ("position i: " + i + " =" + allPlayers[i].playerGuid);
+			if(allPlayers[i].playerGuid == playerID){
+				Debug.Log ("found at: " + i);
+				myName = allPlayers[i].playerName;
+				teamColor = allPlayers[i].playerTeamColor;
+			}
+		}
 		
+		Debug.Log ("player to remove: " + myName + ", color: " + teamColor);
+		
+		if (myName !=null){
+			//move last item to index of name, remove last item, decrement
+			if(teamColor=="blue"){//blue team
+				int index = System.Array.IndexOf(blueTeamPlayers,myName);
+				blueTeamPlayers[index] = blueTeamPlayers [blueTeamTotalPlayers-1];
+				Debug.Log ("revising index: " + index + " from " + blueTeamPlayers[index] + " to " + blueTeamPlayers[blueTeamTotalPlayers-1]);
+				blueTeamPlayers[blueTeamTotalPlayers-1]=null;
+				blueTeamTotalPlayers--;
+				Debug.Log ("revised blue team: " + getBlueTeamString());
+			}
+			else{	//red team 
+				int index = System.Array.IndexOf(redTeamPlayers,myName);
+				redTeamPlayers[index] = redTeamPlayers [redTeamTotalPlayers-1];
+				Debug.Log ("revising index: " + index + " from " + redTeamPlayers[index] + " to " + redTeamPlayers[redTeamTotalPlayers-1]);
+				redTeamPlayers[redTeamTotalPlayers-1]=null;
+				redTeamTotalPlayers--;
+				Debug.Log ("revised red team: " + getRedTeamString());
+			}
+			int indexLocation = 0;
+			for (int i=0;i<allPlayers.Length;i++){
+				if(allPlayers[i].playerName == myName && allPlayers[i].playerTeamColor == teamColor)
+					indexLocation = i;
+			}
+			allPlayers[indexLocation] = allPlayers[numberOfPlayers-1];
+			allPlayers[numberOfPlayers-1] = new playerInfo();
+			Debug.Log ("revised all players: " + allPlayers.ToString());
+			numberOfPlayers--;
+		}
+	}
+	
+	[RPC]
+	public void updateTeamData(string teamColor, string name, string playerID){
+		
+		//keep track of all for easy removal
+		//allPlayers[totalPlayers] = name;
+		//totalPlayers++;
+				
 		if(teamColor=="blue"){
-			//TO DO: add to team name list 
+
 			blueTeamPlayers[blueTeamTotalPlayers] = name;
 			blueTeamTotalPlayers++;
 			
-			//mainPlayer.name = "Blue Player (" + name +")";
-			//playerShotColor = Resources.Load("Prefabs/BlueShot") as GameObject;
-			//playerMaterialColor = Resources.Load ("Materials/Blue") as Material;
 		}
 		else{
 			
 			redTeamPlayers[redTeamTotalPlayers] = name;
 			redTeamTotalPlayers++;
-			//mainPlayer.name = "Red Player (" + name +")";
 		}
-		//mainPlayer.GetComponentInChildren<Camera>().GetComponent<PG_Gun>().shot = playerShotColor;
-		//mainPlayer.GetComponentInChildren<MeshRenderer>().renderer.material = playerMaterialColor;
+		
+		allPlayers[numberOfPlayers] = new playerInfo();
+		allPlayers[numberOfPlayers].playerName = name;
+		allPlayers[numberOfPlayers].playerGuid = playerID;
+		allPlayers[numberOfPlayers].playerTeamColor = teamColor;
+		numberOfPlayers++;
 
 	}
 	

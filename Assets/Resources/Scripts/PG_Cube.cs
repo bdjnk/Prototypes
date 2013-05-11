@@ -136,6 +136,7 @@ public class PG_Cube : MonoBehaviour
 				}
 			}
 		}
+		//Destroy(shot);
 	}
 	
 	[RPC]
