@@ -141,21 +141,38 @@ public class PG_Cube : MonoBehaviour
 				}
 			}
 		}
-
-		
-		//Destroy(shot);
 	}
 	
 	[RPC]
 	public void UpdateCubeMaterial(string newMaterial){
 	
+		GameObject mainGame = GameObject.Find ("GameManager");
+		
 		if (newMaterial == "blue")
-		{
+		{	//update score based on server only
+			if(Network.isServer){
+				if(renderer.material.GetTexture("_MainTex")==red){
+					mainGame.networkView.RPC ("blueScore",RPCMode.AllBuffered,1);
+					mainGame.networkView.RPC ("redScore",RPCMode.AllBuffered,-1);
+				} else if(renderer.material.GetTexture("_MainTex")==blue){
+				} else {
+					mainGame.networkView.RPC ("blueScore",RPCMode.AllBuffered,1);
+				}
+			}
 			//renderer.material = blue;
 			renderer.material.SetTexture("_MainTex", blue);
 		}
 		else if (newMaterial == "red")
-		{
+		{	//update score based on server only
+			if(Network.isServer){
+				if(renderer.material.GetTexture("_MainTex")==blue){
+					mainGame.networkView.RPC ("redScore",RPCMode.AllBuffered,1);
+					mainGame.networkView.RPC ("blueScore",RPCMode.AllBuffered,-1);
+				} else if(renderer.material.GetTexture("_MainTex")==red){
+				} else {
+					mainGame.networkView.RPC ("redScore",RPCMode.AllBuffered,1);
+				}
+			}
 			//renderer.material = red;
 			renderer.material.SetTexture("_MainTex", red);
 		}

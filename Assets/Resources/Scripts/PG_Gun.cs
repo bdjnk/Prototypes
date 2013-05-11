@@ -64,10 +64,13 @@ public class PG_Gun : MonoBehaviour {
 			//GameObject clone = Instantiate(shot, pos, transform.rotation) as GameObject;
 			//should change to separate group?
 			GameObject clone;
+			
+			
 			if (Network.connections.Length > 0)
 			//if (Network.isClient || Network.isServer)
-			{
-				clone = Network.Instantiate(shot, pos, transform.rotation,0) as GameObject;
+			{	//using group 10 for shots
+				
+				clone = Network.Instantiate(shot, pos, transform.rotation,10) as GameObject;
 			}
 			else
 			{

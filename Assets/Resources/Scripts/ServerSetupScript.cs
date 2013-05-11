@@ -35,10 +35,10 @@ public class ServerSetupScript : MonoBehaviour {
 	private string myTeamInputColor = "red";
 	private string myInputName = "";
 	
+	private bool invalidInput = false;
+	
 	// Use this for initialization
 	void Start () {
-		//StartServer();
-		//TestCube ();
 		mainGame = GameObject.Find ("GameManager");
 		
 	}
@@ -54,12 +54,16 @@ public class ServerSetupScript : MonoBehaviour {
 			}
 		}
 		
+		if((int) Time.realtimeSinceStartup % 31 ==0){
+			Network.RemoveRPCsInGroup(10);
+		}
+		
 
 	}
+	
 	void refreshHostList(){
 		MasterServer.RequestHostList(gameName);
 		refreshing = true;
-		
 	}
 		
 	
@@ -105,7 +109,11 @@ public class ServerSetupScript : MonoBehaviour {
 		if(GUIgettingServerName){
 			Screen.lockCursor = false;
 			Screen.showCursor = true;
-			GUI.Box(new Rect (buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f),"Enter Your Unique Server Name");
+			if(!invalidInput){
+				GUI.Box(new Rect (buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f),"Enter Your Unique Server Name");
+			} else {
+				GUI.Box(new Rect (buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f),"Server Name is not Unique, try again");
+			}
 	        serverInstanceName = GUI.TextField(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*2f),buttonW*3f,buttonH*0.5f), serverInstanceName, 20);
 			if(GUI.Button(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*3f),buttonW*3f,buttonH*0.5f),"Submit")){
 				bool clearedAllNames = true;
@@ -118,7 +126,10 @@ public class ServerSetupScript : MonoBehaviour {
 				}
 				if(serverInstanceName!="" && clearedAllNames){
 					GUIgettingServerName = false;
+					invalidInput = false;
 					StartServer();
+				} else {
+					invalidInput = true;
 				}
 			}
 		
@@ -166,18 +177,28 @@ public class ServerSetupScript : MonoBehaviour {
 			
 			Screen.lockCursor = false;
 			Screen.showCursor = true;
-			GUI.Box(new Rect (buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f),"Enter Your Name Below");
+			if(!invalidInput){
+				GUI.Box(new Rect (buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f),"Enter Your Name Below");
+			} else { 
+				GUI.Box(new Rect (buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH),buttonW*3f,buttonH*0.5f),"Name must be unique, try again:");
+			}
 	        myInputName = GUI.TextField(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*2f),buttonW*3f,buttonH*0.5f), myInputName, 15);
 			if(GUI.Button(new Rect(buttonX*1.5f + buttonW,buttonY*1.2f+(buttonH*3f),buttonW*3f,buttonH*0.5f),"Submit")){
 				if(myInputName!=""){//check for uniqueness here
 					if (myTeamInputColor == "blue" && !blueTeamPlayers.Contains(myInputName)){
+						invalidInput = false;
 						SpawnPlayer();
 						GUIgettingPlayerName = false;
+					} else {
+						invalidInput = true;
 					}
 					if (myTeamInputColor == "red" && !redTeamPlayers.Contains(myInputName)){
+						invalidInput = false;
 						SpawnPlayer();
 						GUIgettingPlayerName = false;
-					} 
+					} else {
+						invalidInput = true;
+					}
 				}
 			}
 		}
@@ -213,13 +234,14 @@ public class ServerSetupScript : MonoBehaviour {
 	}
 	
 	void OnServerInitialized(){
+		//reset all Data
 		mainGame.GetComponent<GameManagerScript>().resetAllData();
 		Debug.Log ("Server initialized");
-		GUIgettingPlayerData = true;
-		
-		//reset all Data
-		
-		//SpawnPlayer();
+		GUIgettingPlayerData = true;		
+	}
+	
+	void OnDisconnectedFromServer(){
+		resetAllData();
 	}
 	
 	void OnConnectedToServer(){
@@ -233,23 +255,22 @@ public class ServerSetupScript : MonoBehaviour {
 		
 	}
 	
-	
 	IEnumerator OnPlayerDisconnected(NetworkPlayer player) {        
 		Debug.Log("Clean up after player " + player + " " + player.guid + " " + playerNumber);        	
 		mainGame.networkView.RPC ("removePlayer",RPCMode.AllBuffered,player.guid);
 		
 		yield return new WaitForSeconds(5.0F);
 		//need to include this but with delay for clients to update
-		Network.RemoveRPCs(player);        
+		Network.RemoveRPCsInGroup(10);//group 10 is shots - would be nice to make this unique per player
+		//Network.RemoveRPCs(player);        
 		Network.DestroyPlayerObjects(player);  
-		
-	
+		Debug.Log ("removing: " + mainPlayer.ToString());
+		//Network.Destroy (mainPlayer);		
 	}
 	
 	
 
 	void SpawnPlayer(){
-		//playerNumber++;
 		//TODO: make a unique name - check if it already exists before saving it
 		mainPlayer = (GameObject) Network.Instantiate(playerPrefab, new Vector3(spawnX,spawnY,spawnZ),Quaternion.identity, 0);
 		
@@ -261,29 +282,38 @@ public class ServerSetupScript : MonoBehaviour {
 		mainPlayer.GetComponentInChildren<Camera>().GetComponent<PG_Gun>().enabled = true;
 		
 		mainGame.networkView.RPC ("updateTeamData",RPCMode.AllBuffered,myTeamInputColor,myInputName,Network.player.guid);
-		mainPlayer.networkView.RPC ("setNewPlayerData",RPCMode.AllBuffered,myTeamInputColor,myInputName);
-		//playerNumber;
+		mainPlayer.networkView.RPC ("setNewPlayerData",RPCMode.AllBuffered,myTeamInputColor,myInputName,Network.player.guid);
 	}
 	
-	/*
-	[RPC]
-	void SetPlayerData(){		
+	void resetAllData(){
+		mainGame = null;
+		playerPrefab = null;  
+		mainPlayer = null;  
+		mSpeed = 5.0f;
+		playerNumber = 0;
 		
-		//default color is red
-		GameObject playerShotColor = Resources.Load("Prefabs/RedShot") as GameObject;
-		Material playerMaterialColor = Resources.Load ("Materials/Red") as Material;
-		mainPlayer.name = "Red Team Player " + playerNumber;
-		//set blue or red (even or odd playerNumber)
-		if(playerNumber%2==0){//even will be blue (default is red)	
-			playerShotColor = Resources.Load("Prefabs/BlueShot") as GameObject;
-			playerMaterialColor = Resources.Load ("Materials/Blue") as Material;
-			mainPlayer.name = "Blue Team Player " + playerNumber;
-		} 
-		mainPlayer.GetComponentInChildren<Camera>().GetComponent<PG_Gun>().shot = playerShotColor;
-		mainPlayer.GetComponentInChildren<MeshRenderer>().renderer.material = playerMaterialColor;
+		GUIgettingServerName = false;
+		GUIgettingPlayerData = false;
+		GUIgettingPlayerName = false;
+		networkMode = false;//using network mode
+		
+		refreshing = false;
+		hostData = null;
+		
+		gameName = "123Paint the Town123"; //could make this public if we want
+		defaultServerInstanceName = "Paint The Town";
+		serverInstanceName = "";
+		
+		myTeamInputColor = "red";
+		myInputName = "";
+		
+		invalidInput = false;
+		
+		Application.LoadLevel("Networking");
+		
+		
 	}
 	
-	*/
 	void OnMasterServerEvent(MasterServerEvent mse){
 		if(mse == MasterServerEvent.RegistrationSucceeded){
 			Debug.Log ("Registered Server");

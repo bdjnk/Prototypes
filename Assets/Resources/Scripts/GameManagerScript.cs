@@ -3,25 +3,26 @@ using System.Collections;
 
 public class GameManagerScript : MonoBehaviour
 {
-
+	private int totalCubesInThisWorld = 54;
+	
 	private int redTeamTotalPlayers;
 	private int blueTeamTotalPlayers;
-	//private int totalPlayers;
 	private string[] blueTeamPlayers;
 	private string[] redTeamPlayers;
-	//private string[] allPlayers;
-	
+	private int redTeamTotalScore;
+	private int blueTeamTotalScore;
+		
 	//array to relate player id to name
 	public struct playerInfo{
 		public string playerName;
 		public string playerGuid;
 		public string playerTeamColor;
 	}
+	
 	private playerInfo[] allPlayers;
 	private int numberOfPlayers;
 	
-	
-	private int maxPlayers;
+	private int maxPlayers = 8;
 	
 	void Start(){
 		resetAllData();
@@ -30,10 +31,15 @@ public class GameManagerScript : MonoBehaviour
 	public void resetAllData(){
 		redTeamTotalPlayers = 0;
 		blueTeamTotalPlayers = 0;
-		maxPlayers = 8;
 		blueTeamPlayers = new string[maxPlayers];
 		redTeamPlayers = new string[maxPlayers];
 		allPlayers = new playerInfo[maxPlayers];
+		redTeamTotalScore = 0;
+		blueTeamTotalScore = 0;
+	}
+	
+	public int getTotalCubes(){
+		return totalCubesInThisWorld;
 	}
 	
 	public int getRedTeamCount(){
@@ -42,6 +48,14 @@ public class GameManagerScript : MonoBehaviour
 	
 	public int getBlueTeamCount(){
 		return blueTeamTotalPlayers;
+	}
+	
+	public int getRedTeamScore(){
+		return redTeamTotalScore;
+	}
+	
+	public int getBlueTeamScore(){
+		return blueTeamTotalScore;
 	}
 	
 	public string getRedTeamString(){
@@ -60,16 +74,20 @@ public class GameManagerScript : MonoBehaviour
 		return temp;
 	}
 	
+	void Update(){
+		
+	}
+	
 	[RPC]
 	public void removePlayer(string playerID){
 		//get name from ID
 		string myName=null;
 		string teamColor=null;
 		for (int i =0;i<allPlayers.Length;i++){
-			Debug.Log ("Looking for: " + playerID);
+			//Debug.Log ("Looking for: " + playerID);
 			//Debug.Log ("position i: " + i + " =" + allPlayers[i].playerGuid);
 			if(allPlayers[i].playerGuid == playerID){
-				Debug.Log ("found at: " + i);
+				//Debug.Log ("found at: " + i);
 				myName = allPlayers[i].playerName;
 				teamColor = allPlayers[i].playerTeamColor;
 			}
@@ -82,18 +100,18 @@ public class GameManagerScript : MonoBehaviour
 			if(teamColor=="blue"){//blue team
 				int index = System.Array.IndexOf(blueTeamPlayers,myName);
 				blueTeamPlayers[index] = blueTeamPlayers [blueTeamTotalPlayers-1];
-				Debug.Log ("revising index: " + index + " from " + blueTeamPlayers[index] + " to " + blueTeamPlayers[blueTeamTotalPlayers-1]);
+				//Debug.Log ("revising index: " + index + " from " + blueTeamPlayers[index] + " to " + blueTeamPlayers[blueTeamTotalPlayers-1]);
 				blueTeamPlayers[blueTeamTotalPlayers-1]=null;
 				blueTeamTotalPlayers--;
-				Debug.Log ("revised blue team: " + getBlueTeamString());
+				//Debug.Log ("revised blue team: " + getBlueTeamString());
 			}
 			else{	//red team 
 				int index = System.Array.IndexOf(redTeamPlayers,myName);
 				redTeamPlayers[index] = redTeamPlayers [redTeamTotalPlayers-1];
-				Debug.Log ("revising index: " + index + " from " + redTeamPlayers[index] + " to " + redTeamPlayers[redTeamTotalPlayers-1]);
+				//Debug.Log ("revising index: " + index + " from " + redTeamPlayers[index] + " to " + redTeamPlayers[redTeamTotalPlayers-1]);
 				redTeamPlayers[redTeamTotalPlayers-1]=null;
 				redTeamTotalPlayers--;
-				Debug.Log ("revised red team: " + getRedTeamString());
+				//Debug.Log ("revised red team: " + getRedTeamString());
 			}
 			int indexLocation = 0;
 			for (int i=0;i<allPlayers.Length;i++){
@@ -102,17 +120,29 @@ public class GameManagerScript : MonoBehaviour
 			}
 			allPlayers[indexLocation] = allPlayers[numberOfPlayers-1];
 			allPlayers[numberOfPlayers-1] = new playerInfo();
-			Debug.Log ("revised all players: " + allPlayers.ToString());
+			//Debug.Log ("revised all players: " + allPlayers.ToString());
 			numberOfPlayers--;
 		}
 	}
+	[RPC]
+	public void blueScore(int hits){
+		blueTeamTotalScore += hits;
+		if (blueTeamTotalScore<0){
+			blueTeamTotalScore = 0;
+		}//could also check max?
+	}
+	
+	[RPC]
+	public void redScore(int hits){
+		redTeamTotalScore += hits;
+		if (redTeamTotalScore<0){
+			redTeamTotalScore = 0;
+		}//could also check max?
+	}
+	
 	
 	[RPC]
 	public void updateTeamData(string teamColor, string name, string playerID){
-		
-		//keep track of all for easy removal
-		//allPlayers[totalPlayers] = name;
-		//totalPlayers++;
 				
 		if(teamColor=="blue"){
 

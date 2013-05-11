@@ -6,11 +6,14 @@ public class PlayerDataScript : MonoBehaviour {
 	private GameObject mainGame = null;
 	private int blueTeamTotalPlayers;
 	private int redTeamTotalPlayers;
+	private int totalCubes;
 	
 	private int playerNumber;
-	private int playerName;
-	private int playerNetworkID;
+	private string playerName;
+	private string playerNetworkID;
 	private bool showGUI = false;
+	private bool showRed = false;
+	private bool showBlue = false;
 	
 	//sizes for buttons
 	private float buttonX = Screen.width*0.02f;
@@ -23,10 +26,13 @@ public class PlayerDataScript : MonoBehaviour {
 	private bool mouseLooking = true;
 	private bool updateGUI = false;
 	//private float timeCheck;
-	private int guiSecondsToWait = 10;//will display half this time
+	private int guiSecondsToWait = 2;//will display half this time
 	
 	private string redTeamPlayersString;
 	private string blueTeamPlayersString;
+	private int redTeamTotalScore;
+	private int blueTeamTotalScore;
+	private int myTotalScore;
 	
 	private Color playerColor = Color.red;
 	
@@ -68,7 +74,9 @@ public class PlayerDataScript : MonoBehaviour {
 	}
 	
 	[RPC]
-	void setNewPlayerData(string teamColor, string myName) {
+	void setNewPlayerData(string teamColor, string myName, string myID) {
+		playerName = myName;
+		playerNetworkID = myID;
 		//default color is red
 		GameObject playerShotColor = Resources.Load("Prefabs/RedShot") as GameObject;
 		Material playerMaterialColor = Resources.Load("Materials/Red") as Material;
@@ -86,8 +94,7 @@ public class PlayerDataScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
-			//temporary pause updates while p is down
-		
+		//temporary pause updates while p is down
 		if (Input.GetKeyDown("p")){
 			updateMouseLook(!mouseLooking);
 			mouseLooking = !mouseLooking;
@@ -100,10 +107,16 @@ public class PlayerDataScript : MonoBehaviour {
 			updateGUI = false;
 		}
 			
-		if (Input.GetKeyDown("t")){
+		if (Input.GetKeyDown("t") && Network.player.guid == playerNetworkID){
 			showGUI = !showGUI;
+			if(myTeam == "blue"){
+				showRed = false;
+				showBlue = true;
+			} else {
+				showRed = true;
+				showBlue = false;
+			}
 		}
-		
 	}
 	
 	void OnGUI(){
@@ -112,15 +125,24 @@ public class PlayerDataScript : MonoBehaviour {
 				//get update to current player lists
 				redTeamPlayersString = mainGame.GetComponent<GameManagerScript>().getRedTeamString();
 				blueTeamPlayersString = mainGame.GetComponent<GameManagerScript>().getBlueTeamString();
+				redTeamTotalScore = mainGame.GetComponent<GameManagerScript>().getRedTeamScore();
+				blueTeamTotalScore = mainGame.GetComponent<GameManagerScript>().getBlueTeamScore();
+				totalCubes = mainGame.GetComponent<GameManagerScript>().getTotalCubes();
 			}
 			//display the lists
-			if(myTeam == "red")
+			if(showRed){
+				//Debug.Log ("red team display by" + playerName);
 				GUI.Box(new Rect(buttonX,buttonY,buttonW,buttonH),"Red Team: \n" + redTeamPlayersString);
-			if(myTeam == "blue")
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY,buttonW,buttonH),"Red Team: \n" + redTeamTotalScore + "\n " + ((int) (100.0f* redTeamTotalScore/totalCubes))+ "%");
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY+buttonH*1.2f,buttonW,buttonH),"Blue Team: \n" + blueTeamTotalScore + "\n " + ((int)(100.0f* blueTeamTotalScore/totalCubes))+ "%");
+			}
+			if(showBlue){
+				//Debug.Log ("blue team display by " + playerName);
 				GUI.Box(new Rect(buttonX,buttonY,buttonW,buttonH),"Blue Team: \n" + blueTeamPlayersString);
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY,buttonW,buttonH),"Blue Team: \n" + blueTeamTotalScore + "\n " + ((int)(100.0f* blueTeamTotalScore/totalCubes)) + "%");
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY+buttonH*1.2f,buttonW,buttonH),"Red Team: \n" + redTeamTotalScore + "\n " + ((int)(100.0f* redTeamTotalScore/totalCubes)) + "%");
+			}
 		}
-		
-		
 	}
 	
 	public void updateMouseLook(bool mouseLookingSet){
