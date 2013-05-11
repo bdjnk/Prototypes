@@ -21,7 +21,7 @@ public class PG_Shot : MonoBehaviour
 	
 	void Update()
 	{
-		if(gameObject!=null){
+		if(gameObject!=null && gameObject.networkView.viewID.ToString() != "0"){
 			//persist for network functionality
 			if(Time.time - timeAtStart > persist + 1f){
 				//Debug.Log ("on delay, network view is: " + networkView.isMine + " id: " + networkView.viewID);
@@ -52,6 +52,8 @@ public class PG_Shot : MonoBehaviour
 		//yield return new WaitForSeconds(5.0F);
 		//if (Network.isServer || Network.isClient)
 		//Debug.Log ("on trigger, network view is: " + networkView.isMine + " id: " + networkView.viewID);
+		
+		
 		if ((Network.isClient || Network.isServer) && networkView.isMine)
 			{	
 				Network.Destroy(gameObject);
