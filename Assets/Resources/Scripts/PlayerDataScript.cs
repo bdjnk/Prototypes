@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerDataScript : MonoBehaviour {
 	
 	private GameObject mainGame = null;
+	
 	private int blueTeamTotalPlayers;
 	private int redTeamTotalPlayers;
 	private int totalCubes;
@@ -32,7 +33,9 @@ public class PlayerDataScript : MonoBehaviour {
 	private string blueTeamPlayersString;
 	private int redTeamTotalScore;
 	private int blueTeamTotalScore;
-	private int myTotalScore;
+	private int myTotalClaims;
+	private int myTotalOwned;
+	private int myTeamPercentage;
 	
 	private Color playerColor = Color.red;
 	
@@ -40,6 +43,7 @@ public class PlayerDataScript : MonoBehaviour {
 	void Start () {
 		//timeCheck = Time.realtimeSinceStartup;
 		mainGame = GameObject.Find ("GameManager");
+		
 		//playerNetworkID = Network.player.guid;
 		//update data from server
 		
@@ -119,6 +123,14 @@ public class PlayerDataScript : MonoBehaviour {
 		}
 	}
 	
+	private void updateMyScores(){
+		if(Network.player.guid == playerNetworkID){
+			myTotalClaims = mainGame.GetComponent<GameManagerScript>().getMyTotalClaims(playerNetworkID);
+			myTotalOwned = mainGame.GetComponent<GameManagerScript>().getMyTotalOwned(playerNetworkID);
+			myTeamPercentage = mainGame.GetComponent<GameManagerScript>().getMyPercentage(playerNetworkID);
+		}
+	}
+	
 	void OnGUI(){
 		if(showGUI){
 			if(updateGUI){
@@ -128,19 +140,22 @@ public class PlayerDataScript : MonoBehaviour {
 				redTeamTotalScore = mainGame.GetComponent<GameManagerScript>().getRedTeamScore();
 				blueTeamTotalScore = mainGame.GetComponent<GameManagerScript>().getBlueTeamScore();
 				totalCubes = mainGame.GetComponent<GameManagerScript>().getTotalCubes();
+				updateMyScores();
 			}
 			//display the lists
 			if(showRed){
 				//Debug.Log ("red team display by" + playerName);
 				GUI.Box(new Rect(buttonX,buttonY,buttonW,buttonH),"Red Team: \n" + redTeamPlayersString);
-				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY,buttonW,buttonH),"Red Team: \n" + redTeamTotalScore + "\n " + ((int) (100.0f* redTeamTotalScore/totalCubes))+ "%");
-				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY+buttonH*1.2f,buttonW,buttonH),"Blue Team: \n" + blueTeamTotalScore + "\n " + ((int)(100.0f* blueTeamTotalScore/totalCubes))+ "%");
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY,buttonW,buttonH/2),"Red Team: \n" + redTeamTotalScore + "\n " + ((int) (100.0f* redTeamTotalScore/totalCubes))+ "%");
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY+buttonH*0.6f,buttonW,buttonH/2),"Blue Team: \n" + blueTeamTotalScore + "\n " + ((int)(100.0f* blueTeamTotalScore/totalCubes))+ "%");
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY+buttonH*1.2f,buttonW,buttonH),"My Cubes: \n" + myTotalOwned + "\n" + myTeamPercentage + "%\nClaims: \n" + myTotalClaims);
 			}
 			if(showBlue){
 				//Debug.Log ("blue team display by " + playerName);
 				GUI.Box(new Rect(buttonX,buttonY,buttonW,buttonH),"Blue Team: \n" + blueTeamPlayersString);
-				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY,buttonW,buttonH),"Blue Team: \n" + blueTeamTotalScore + "\n " + ((int)(100.0f* blueTeamTotalScore/totalCubes)) + "%");
-				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY+buttonH*1.2f,buttonW,buttonH),"Red Team: \n" + redTeamTotalScore + "\n " + ((int)(100.0f* redTeamTotalScore/totalCubes)) + "%");
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY,buttonW,buttonH/2),"Blue Team: \n" + blueTeamTotalScore + "\n " + ((int)(100.0f* blueTeamTotalScore/totalCubes)) + "%");
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY+buttonH*0.6f,buttonW,buttonH/2),"Red Team: \n" + redTeamTotalScore + "\n " + ((int)(100.0f* redTeamTotalScore/totalCubes)) + "%");
+				GUI.Box(new Rect(Screen.width - buttonW - buttonX,buttonY+buttonH*1.2f,buttonW,buttonH),"My Cubes: \n" + myTotalOwned + "\n" + myTeamPercentage + "%\nClaims: \n" + myTotalClaims);
 			}
 		}
 	}

@@ -8,13 +8,21 @@ public class PG_Shot : MonoBehaviour
 	public float persist = 6f;//4f in unity
 	private float timeAtStart;
 	
+	private string shotOwnerID;
+	
 	
 	// Use this for initialization
 	void Start()
 	{	
 		Destroy(gameObject, persist+3f);//cleanup if network doesn't delete
 		
-		timeAtStart = Time.time;	
+		timeAtStart = Time.time;
+		
+		shotOwnerID = Network.player.guid;
+	}
+	
+	public string getShotOwnerID(){
+		return shotOwnerID;
 	}
 	
 	void Update()
@@ -40,7 +48,7 @@ public class PG_Shot : MonoBehaviour
 				cubeScript.Struck(this);
 			}
 		
-			if ((Network.isClient || Network.isServer))
+			if ((Network.isClient || Network.isServer))//we could let server do all collisions?
 				{	
 					Network.Destroy(gameObject);
 			}

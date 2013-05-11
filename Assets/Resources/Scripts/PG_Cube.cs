@@ -17,6 +17,7 @@ public class PG_Cube : MonoBehaviour
 	public int maxColor = 5;
 	private float amountBlue;
 	private float amountRed;
+	private string cubeOwnerID;
 	
 	private Up up = Up.none;
 	private enum Up
@@ -29,6 +30,7 @@ public class PG_Cube : MonoBehaviour
 	void Start()
 	{
 		building = transform.parent.GetComponent<PG_Building>();
+		cubeOwnerID="";
 	}
 	
 	public void Struck(PG_Shot shot)
@@ -113,7 +115,7 @@ public class PG_Cube : MonoBehaviour
 				{
 					if (Network.isClient || Network.isServer)
 					{
-						networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "blue");
+						networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "blue",shot.getShotOwnerID());
 					}
 					else // remove when all shall be networked (in the final game)
 					{
@@ -131,7 +133,7 @@ public class PG_Cube : MonoBehaviour
 				{
 					if (Network.isClient || Network.isServer)
 					{
-						networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "red");
+						networkView.RPC("UpdateCubeMaterial", RPCMode.AllBuffered, "red",shot.getShotOwnerID());
 					}
 					else // remove when all shall be networked (in the final game)
 					{
@@ -144,19 +146,26 @@ public class PG_Cube : MonoBehaviour
 	}
 	
 	[RPC]
-	public void UpdateCubeMaterial(string newMaterial){
+	public void UpdateCubeMaterial(string newMaterial,string shotOwnerID){
 	
 		GameObject mainGame = GameObject.Find ("GameManager");
 		
 		if (newMaterial == "blue")
 		{	//update score based on server only
 			if(Network.isServer){
-				if(renderer.material.GetTexture("_MainTex")==red){
+				if(renderer.material.GetTexture("_MainTex")==red){//change from red
 					mainGame.networkView.RPC ("blueScore",RPCMode.AllBuffered,1);
 					mainGame.networkView.RPC ("redScore",RPCMode.AllBuffered,-1);
-				} else if(renderer.material.GetTexture("_MainTex")==blue){
-				} else {
+					//update player total claims and reduce previous owner claim
+					mainGame.networkView.RPC("updatePlayersScore", RPCMode.AllBuffered,shotOwnerID,cubeOwnerID);
+					//update cube owner
+					cubeOwnerID = shotOwnerID;
+				} else if(renderer.material.GetTexture("_MainTex")==blue){//no change
+				} else {//initial claim
 					mainGame.networkView.RPC ("blueScore",RPCMode.AllBuffered,1);
+					//update player total claims
+					mainGame.networkView.RPC("updatePlayersScore", RPCMode.AllBuffered,shotOwnerID,cubeOwnerID);
+					cubeOwnerID = shotOwnerID;
 				}
 			}
 			//renderer.material = blue;
@@ -165,12 +174,19 @@ public class PG_Cube : MonoBehaviour
 		else if (newMaterial == "red")
 		{	//update score based on server only
 			if(Network.isServer){
-				if(renderer.material.GetTexture("_MainTex")==blue){
+				if(renderer.material.GetTexture("_MainTex")==blue){//change from blue
 					mainGame.networkView.RPC ("redScore",RPCMode.AllBuffered,1);
 					mainGame.networkView.RPC ("blueScore",RPCMode.AllBuffered,-1);
-				} else if(renderer.material.GetTexture("_MainTex")==red){
-				} else {
+					//update player total claims and reduce previous owner claim
+					mainGame.networkView.RPC("updatePlayersScore", RPCMode.AllBuffered,shotOwnerID,cubeOwnerID);
+					//update cube owner
+					cubeOwnerID = shotOwnerID;
+				} else if(renderer.material.GetTexture("_MainTex")==red){//no change
+				} else {//initial claim
 					mainGame.networkView.RPC ("redScore",RPCMode.AllBuffered,1);
+					//update player total claims
+					mainGame.networkView.RPC("updatePlayersScore", RPCMode.AllBuffered,shotOwnerID,cubeOwnerID);
+					cubeOwnerID = shotOwnerID;
 				}
 			}
 			//renderer.material = red;

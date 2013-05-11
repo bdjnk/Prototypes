@@ -17,9 +17,12 @@ public class GameManagerScript : MonoBehaviour
 		public string playerName;
 		public string playerGuid;
 		public string playerTeamColor;
+		public int playerTotalClaims;
+		public int playerTotalOwned;
+		public int percentOfTeamTotal;
 	}
 	
-	private playerInfo[] allPlayers;
+	private playerInfo[] allPlayers;//need to initialize!!!
 	private int numberOfPlayers;
 	
 	private int maxPlayers = 8;
@@ -36,6 +39,17 @@ public class GameManagerScript : MonoBehaviour
 		allPlayers = new playerInfo[maxPlayers];
 		redTeamTotalScore = 0;
 		blueTeamTotalScore = 0;
+		for (int i=0;i<maxPlayers;i++){
+			allPlayers[i].playerName="";
+			allPlayers[i].playerGuid="";
+			allPlayers[i].playerTeamColor="";
+			allPlayers[i].playerTotalClaims=0;
+			allPlayers[i].playerTotalOwned=0;
+			allPlayers[i].percentOfTeamTotal=0;
+			
+			
+		}
+		
 	}
 	
 	public int getTotalCubes(){
@@ -58,6 +72,56 @@ public class GameManagerScript : MonoBehaviour
 		return blueTeamTotalScore;
 	}
 	
+	public int getMyTotalClaims(string myID){
+		for (int i=0;i<maxPlayers;i++){
+			if(allPlayers[i].playerGuid == myID){
+				return allPlayers[i].playerTotalClaims;
+			}
+		}
+		return 0;
+	}
+	
+	public int getMyTotalOwned(string myID){
+		for (int i=0;i<maxPlayers;i++){
+			if(allPlayers[i].playerGuid == myID){
+				return allPlayers[i].playerTotalOwned;
+			}
+		}
+		return 0;
+	}
+	
+	public int getMyPercentage(string myID){
+		for (int i=0;i<maxPlayers;i++){
+			if(allPlayers[i].playerGuid == myID){
+				return allPlayers[i].percentOfTeamTotal;
+			}
+		}
+		return 0;
+	}
+	
+	[RPC]
+	public void updatePlayersScore(string newOwnerID,string prevOwnerID){
+		if(newOwnerID != ""){//make sure we have an owner
+			//search list and update scores
+			for (int i=0;i<maxPlayers;i++){
+				if(allPlayers[i].playerGuid == newOwnerID){
+					allPlayers[i].playerTotalClaims++;
+					allPlayers[i].playerTotalOwned++;
+				}
+				if(prevOwnerID!=""){
+					if(allPlayers[i].playerGuid == prevOwnerID){
+						allPlayers[i].playerTotalOwned--;
+					}
+				}
+				if(allPlayers[i].playerTeamColor=="red" && getRedTeamScore()!=0){
+					allPlayers[i].percentOfTeamTotal = (int) 100.0f * allPlayers[i].playerTotalOwned/getRedTeamScore();
+				} else if (getBlueTeamScore()!=0){
+					allPlayers[i].percentOfTeamTotal = (int) 100.0f * allPlayers[i].playerTotalOwned/getBlueTeamScore();
+				}
+			}
+		}
+	}
+		
 	public string getRedTeamString(){
 		string temp = "";
 		for (int i = 0;i<redTeamPlayers.Length;i++){
